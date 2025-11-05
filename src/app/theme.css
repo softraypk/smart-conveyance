@@ -1,0 +1,40 @@
+@theme {
+    /* Fonts */
+    --font-display: "Inter", "Work Sans", sans-serif;
+
+    /* Border Radius */
+    --radius: 0.5rem;      /* default border radius */
+    --radius-lg: 1rem;
+    --radius-xl: 1.5rem;
+    --radius-full: 9999px;
+
+    /* Brand Colors */
+    --color-primary: #0e6baa;
+
+    /* Backgrounds */
+    --color-background-light: #f6f7f8;
+    --color-background-dark: #101b22;
+
+    /* Accent & Utility Colors (optional but recommended) */
+    --color-muted-light: #6b7280;
+    --color-muted-dark: #9ca3af;
+    --color-border-light: #e5e7eb;
+    --color-border-dark: #374151;
+
+    /* Semantic Support */
+    --color-success: #22c55e;
+    --color-warning: #f59e0b;
+    --color-danger: #ef4444;
+
+    --color-card-light: #FFFFFF;
+    --color-card-dark: #2D3748;
+
+    --color-text-light: #212529;
+    --color-text-dark: #E2E8F0;
+
+    --color-subtext-light: #6C757D;
+    --color-subtext-dark: #A0AEC0;
+
+    /* Border radius */
+    --radius-default: 0.5rem;
+}
