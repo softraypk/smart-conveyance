@@ -72,6 +72,10 @@ export default function BuyerPage() {
         setBuyerToEdit(null);
     };
 
+    if (!caseId) {
+        return <p>Loading...</p>;
+    }
+
     return (
         <div className="flex min-h-screen">
             <div className="flex flex-col w-full">

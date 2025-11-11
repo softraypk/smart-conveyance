@@ -2,17 +2,18 @@
 
 import Sidebar from "@/components/Sidebar";
 import BrokerForm from "@/components/BrokerForm";
-import {useRouter, useSearchParams} from "next/navigation";
+import {useParams, useRouter} from "next/navigation";
 import {useEffect, useState} from "react";
 import {api} from "@/lib/api";
 import toast from "react-hot-toast";
 
 interface Broker {
     id?: string;
-    name: string;
-    email: string;
-    phone: string;
+    name?: string;
+    email?: string;
+    phone?: string;
     branchId?: string;
+    emails?: string[];
 }
 
 interface User {
@@ -24,9 +25,9 @@ interface User {
 
 export default function NewBrokerPage() {
     const router = useRouter();
-    const searchParams = useSearchParams();
+    const params = useParams();
     const [user, setUser] = useState<User | null>(null);
-    const brokerId = searchParams.get("id"); // ?id=123 for edit mode
+    const brokerId = params?.id as string | undefined;
 
     const [brokerData, setBrokerData] = useState<Broker | null>(null);
     const [loading, setLoading] = useState(false);

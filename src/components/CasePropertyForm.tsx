@@ -15,7 +15,17 @@ export default function CasePropertyForm() {
     const [building, setBuilding] = useState("");
     const [titleDeedNo, setTitleDeedNo] = useState("");
     const [hasMortgage, setHasMortgage] = useState(false);
-
+    const [bankName, setBankName] = useState("");
+    const [loanAccountNo, setLoanAccountNo] = useState("");
+    const [facilityType, setFacilityType] = useState("CONVENTIONAL");
+    const [rateType, setRateType] = useState("FIXED");
+    const [outstandingEstimate, setOutstandingEstimate] = useState<number>(0);
+    const [emiAmount, setEmiAmount] = useState<number>(0);
+    const [nextEmiDueOn, setNextEmiDueOn] = useState("");
+    const [mortgageStartDate, setMortgageStartDate] = useState("");
+    const [arrearsAmount, setArrearsAmount] = useState<number>(0);
+    const [earlySettlementRule, setEmiSettlementRule] = useState("");
+    const [notes, setNotes] = useState("");
     const [results, setResults] = useState<any[]>([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
@@ -51,7 +61,18 @@ export default function CasePropertyForm() {
                 setUnit(data.property?.unit || "");
                 setBuilding(data.property?.building || "");
                 setTitleDeedNo(data.property?.titleDeedNo || "");
-                setHasMortgage(!!data.property?.hasMortgage);
+                setHasMortgage(!!data.property?.propertyMortgage);
+                setBankName(data.property?.propertyMortgage?.bankName || "");
+                setLoanAccountNo(data.property?.propertyMortgage?.loanAccountNo || "");
+                setFacilityType(data.property?.propertyMortgage?.facilityType);
+                setRateType(data.property?.propertyMortgage?.rateType);
+                setOutstandingEstimate(data.property?.propertyMortgage?.outstandingEstimate || "");
+                setEmiAmount(data.property?.propertyMortgage?.emiAmount || "");
+                setNextEmiDueOn(isoToDateOnly(data.property?.propertyMortgage?.nextEmiDueOn) || "");
+                setMortgageStartDate(isoToDateOnly(data.property?.propertyMortgage?.mortgageStartDate) || "");
+                setArrearsAmount(data.property?.propertyMortgage?.arrearsAmount || "");
+                setEmiSettlementRule(data.property?.propertyMortgage?.earlySettlementRule || "");
+                setNotes(data.property?.propertyMortgage?.notes || "");
             }
         } catch (err) {
             console.error("Error fetching property:", err);
@@ -92,6 +113,16 @@ export default function CasePropertyForm() {
         }
     };
 
+    function isoToDateOnly(iso: string) {
+        if (!iso) return "";
+        return iso.split("T")[0];  // easiest + fastest
+    }
+
+    function toISO(dateString: string) {
+        if (!dateString) return null;
+        return new Date(dateString).toISOString(); // auto makes Z format
+    }
+
     // 🧠 Save or update form
     const handleSaveForm = async (e: FormEvent) => {
         e.preventDefault();
@@ -104,6 +135,19 @@ export default function CasePropertyForm() {
             building,
             titleDeedNo,
             hasMortgage,
+            ...(hasMortgage ? {
+                bankName,
+                loanAccountNo,
+                facilityType,
+                rateType,
+                outstandingEstimate,
+                emiAmount,
+                nextEmiDueOn: toISO(nextEmiDueOn),
+                mortgageStartDate: toISO(mortgageStartDate),
+                arrearsAmount,
+                earlySettlementRule,
+                notes
+            } : {})
         };
 
         try {
@@ -119,7 +163,7 @@ export default function CasePropertyForm() {
 
             if (response.ok) {
                 toast.success(propertyId ? "Property updated successfully" : "Property saved successfully");
-                router.push(propertyId ? `/cases/${id}/buyer` : `/cases/new/${id}/buyer`);
+                router.push(propertyId ? `/cases/${id}/seller` : `/cases/new/${id}/seller`);
             } else {
                 toast.error("Error: " + response.results?.message);
             }
@@ -238,12 +282,131 @@ export default function CasePropertyForm() {
                 </label>
             </div>
 
+            {hasMortgage && (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+
+                    <label className="flex flex-col">
+                        <p className="form-label dark:text-gray-300">Bank Name*</p>
+                        <input
+                            value={bankName}
+                            onChange={(e) => setBankName(e.target.value)}
+                            className="form-input dark:bg-background-dark dark:border-gray-600 dark:text-white"
+                            placeholder="Enter Bank Name"
+                        />
+                    </label>
+
+                    <label className="flex flex-col">
+                        <p className="form-label dark:text-gray-300">Loan Account No*</p>
+                        <input
+                            value={loanAccountNo}
+                            onChange={(e) => setLoanAccountNo(e.target.value)}
+                            className="form-input dark:bg-background-dark dark:border-gray-600 dark:text-white"
+                            placeholder="123-456-7890"
+                        />
+                    </label>
+
+                    <label className="flex flex-col">
+                        <p className="form-label dark:text-gray-300">Facility Type*</p>
+                        <select
+                            value={facilityType}
+                            onChange={(e) => setFacilityType(e.target.value)}
+                            className="form-input dark:bg-background-dark dark:border-gray-600 dark:text-white"
+                        >
+                            <option value="CONVENTIONAL">CONVENTIONAL</option>
+                            <option value="ISLAMIC">ISLAMIC</option>
+                        </select>
+                    </label>
+
+                    <label className="flex flex-col">
+                        <p className="form-label dark:text-gray-300">Rate Type*</p>
+                        <select
+                            value={rateType}
+                            onChange={(e) => setRateType(e.target.value)}
+                            className="form-input dark:bg-background-dark dark:border-gray-600 dark:text-white"
+                        >
+                            <option value="FIXED">FIXED</option>
+                            <option value="VARIABLE">VARIABLE</option>
+                        </select>
+                    </label>
+
+                    <label className="flex flex-col">
+                        <p className="form-label dark:text-gray-300">Outstanding Estimate*</p>
+                        <input
+                            type="number"
+                            value={outstandingEstimate}
+                            onChange={(e) => setOutstandingEstimate(Number(e.target.value))}
+                            className="form-input dark:bg-background-dark dark:border-gray-600 dark:text-white"
+                        />
+                    </label>
+
+                    <label className="flex flex-col">
+                        <p className="form-label dark:text-gray-300">EMI Amount*</p>
+                        <input
+                            type="number"
+                            value={emiAmount}
+                            onChange={(e) => setEmiAmount(Number(e.target.value))}
+                            className="form-input dark:bg-background-dark dark:border-gray-600 dark:text-white"
+                        />
+                    </label>
+
+                    <label className="flex flex-col">
+                        <p className="form-label dark:text-gray-300">Next EMI Due On*</p>
+                        <input
+                            type="date"
+                            value={nextEmiDueOn}
+                            onChange={(e) => setNextEmiDueOn(e.target.value)}
+                            className="form-input dark:bg-background-dark dark:border-gray-600 dark:text-white"
+                        />
+                    </label>
+
+                    <label className="flex flex-col">
+                        <p className="form-label dark:text-gray-300">Mortgage Start Date*</p>
+                        <input
+                            type="date"
+                            value={mortgageStartDate}
+                            onChange={(e) => setMortgageStartDate(e.target.value)}
+                            className="form-input dark:bg-background-dark dark:border-gray-600 dark:text-white"
+                        />
+                    </label>
+
+                    <label className="flex flex-col">
+                        <p className="form-label dark:text-gray-300">Arrears Amount</p>
+                        <input
+                            type="number"
+                            value={arrearsAmount}
+                            onChange={(e) => setArrearsAmount(Number(e.target.value))}
+                            className="form-input dark:bg-background-dark dark:border-gray-600 dark:text-white"
+                        />
+                    </label>
+
+                    <label className="flex flex-col md:col-span-2">
+                        <p className="form-label dark:text-gray-300">Early Settlement Rule</p>
+                        <input
+                            value={earlySettlementRule}
+                            onChange={(e) => setEmiSettlementRule(e.target.value)}
+                            className="form-input dark:bg-background-dark dark:border-gray-600 dark:text-white"
+                            placeholder="e.g. 1% outstanding"
+                        />
+                    </label>
+
+                    <label className="flex flex-col md:col-span-2">
+                        <p className="form-label dark:text-gray-300">Notes</p>
+                        <textarea
+                            value={notes}
+                            onChange={(e) => setNotes(e.target.value)}
+                            className="form-input dark:bg-background-dark dark:border-gray-600 dark:text-white"
+                            placeholder="Any additional notes"
+                        />
+                    </label>
+
+                </div>
+            )}
+
             <div className="flex justify-between items-center pt-6">
                 <button
                     type="button"
                     onClick={() => router.push(`/cases/new/${id}`)}
-                    className="px-6 py-3 rounded-lg text-[#4c809a] dark:text-gray-300 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 font-bold text-sm"
-                >
+                    className="px-6 py-3 rounded-lg text-[#4c809a] dark:text-gray-300 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 font-bold text-sm">
                     Back
                 </button>
                 <button

@@ -2,26 +2,14 @@ import {FormEvent, useEffect, useState} from "react";
 import {api} from "@/lib/api";
 import toast from "react-hot-toast";
 
-interface Seller {
-    id: string;
-    name: string | null;
-    phone: string | null;
-    email: string | null;
-    user: {
-        email: string;
-        name: string;
-        role?: string;
-    };
-}
-
-interface CaseSellerFormProps {
+interface CaseBuyerFormProps {
     caseId: string;
-    sellerToEdit: Seller | null;
-    onSuccess: () => void;
+    mortgageToEdit?: any | null;
+    onSuccess?: () => void;
 }
 
-export default function CaseSellerForm({caseId, sellerToEdit, onSuccess}: CaseSellerFormProps) {
-    const [role] = useState("SELLER");
+export default function CaseMortgageForm({caseId, mortgageToEdit, onSuccess}: CaseBuyerFormProps) {
+    const [role] = useState("BUYER");
     const [name, setName] = useState("");
     const [email, setEmail] = useState("");
     const [phoneNumber, setPhoneNumber] = useState("");
@@ -30,8 +18,6 @@ export default function CaseSellerForm({caseId, sellerToEdit, onSuccess}: CaseSe
 
     const [results, setResults] = useState<any[]>([]);
 
-
-    console.log(caseId)
 
     // 🧠 Debounce user typing (avoid too many requests)
     useEffect(() => {
@@ -59,7 +45,7 @@ export default function CaseSellerForm({caseId, sellerToEdit, onSuccess}: CaseSe
         }
 
         try {
-            const response = await api(`/users/search/USER?email=${encodeURIComponent(email)}`, {
+            const response = await api(`/users/search/MORTGAGE_BROKER?email=${encodeURIComponent(email)}`, {
                 method: "GET",
             });
 
@@ -84,16 +70,16 @@ export default function CaseSellerForm({caseId, sellerToEdit, onSuccess}: CaseSe
 
     // ✅ Prefill data when editing
     useEffect(() => {
-        if (sellerToEdit) {
-            setName(sellerToEdit.name || "");
-            setEmail(sellerToEdit.user?.email || sellerToEdit.email || "");
-            setPhoneNumber(sellerToEdit.phone || "");
+        if (mortgageToEdit) {
+            setName(mortgageToEdit.name || "");
+            setEmail(mortgageToEdit.user?.email || mortgageToEdit.email || "");
+            setPhoneNumber(mortgageToEdit.phone || "");
         } else {
             setName("");
             setEmail("");
             setPhoneNumber("");
         }
-    }, [sellerToEdit]);
+    }, [mortgageToEdit]);
 
     const handleSaveForm = async (e: FormEvent) => {
         e.preventDefault();
@@ -101,9 +87,9 @@ export default function CaseSellerForm({caseId, sellerToEdit, onSuccess}: CaseSe
         const payload = {role, name, email, phone: phoneNumber};
 
         try {
-            const method = sellerToEdit ? "PATCH" : "POST";
-            const url = sellerToEdit
-                ? `/cases/${caseId}/parties/${sellerToEdit.id}`
+            const method = mortgageToEdit ? "PATCH" : "POST";
+            const url = mortgageToEdit
+                ? `/cases/${caseId}/parties/${mortgageToEdit.id}`
                 : `/cases/${caseId}/parties`;
 
             const response = await api(url, {
@@ -112,7 +98,7 @@ export default function CaseSellerForm({caseId, sellerToEdit, onSuccess}: CaseSe
             });
 
             if (response.ok) {
-                toast.success(`Buyer ${sellerToEdit ? "updated" : "created"} successfully`);
+                toast.success(`Buyer ${mortgageToEdit ? "updated" : "created"} successfully`);
                 onSuccess?.(); // refresh parent table
             } else {
                 toast.error("Error: " + response.results?.message);
@@ -200,7 +186,7 @@ export default function CaseSellerForm({caseId, sellerToEdit, onSuccess}: CaseSe
                     disabled={loading}
                     className="px-6 py-3 rounded-lg text-white bg-primary hover:bg-primary/90 font-bold text-sm"
                 >
-                    {loading ? "Saving..." : sellerToEdit ? "Edit Seller" : "Add Seller"}
+                    {loading ? "Saving..." : mortgageToEdit ? "Edit Buyer" : "Add Buyer"}
                 </button>
             </div>
         </form>

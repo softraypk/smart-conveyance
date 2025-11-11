@@ -93,6 +93,7 @@ export default function UserProfile({params}: { params: Promise<{ id: string }> 
 
     useEffect(() => {
         const fetchOrganization = async () => {
+            if (!user || !user.managedOrgId) return;
             setLoading(true);
             setError("");
 
@@ -155,7 +156,7 @@ export default function UserProfile({params}: { params: Promise<{ id: string }> 
             }
         } catch (error) {
             console.error("Change password error:", error);
-            toast.error(error.response?.results?.message || "Something went wrong!");
+            toast.error(error + "Something went wrong!");
         } finally {
             setLoading(false);
         }

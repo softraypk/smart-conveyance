@@ -7,19 +7,18 @@ const navItems = [
     {name: "Dashboard", href: "/dashboards"},
     {name: "Cases", href: "/cases"},
     {name: "Mortgage Applications", href: "/mortgages"},
-    {name: "Branches", href: "/branches"},
-    {name: "Brokers", href: "/brokers"},
-    {name: "Staff", href: "/staff"},
+    {name: "Documents", href: "/documents"},
+    {name: "Reports", href: "/reports"},
 ];
 
-export default function NavOrg() {
+export default function NavBro() {
     const pathname = usePathname();
 
-    // Extract current top-level resource segment (e.g. "/branches")
+    // Get top-level path segment
     const currentResource = `/${pathname.split("/")[1]}`;
 
     return (
-        <nav className="hidden md:flex items-center gap-8">
+        <nav className="hidden md:flex items-center gap-6">
             {navItems.map((item) => {
                 const itemResource = `/${item.href.split("/")[1]}`;
                 const isActive = currentResource === itemResource;
@@ -28,11 +27,11 @@ export default function NavOrg() {
                     <Link
                         key={item.href}
                         href={item.href}
-                        className={`text-sm cursor-pointer transition-colors border-b-2
+                        className={`text-sm transition-colors border-b-2
               ${
                             isActive
-                                ? "font-bold text-primary border-primary"
-                                : "font-medium text-gray-600 dark:text-gray-300 hover:text-primary border-transparent"
+                                ? "font-medium text-primary border-primary"
+                                : "font-medium text-black/60 dark:text-white/60 hover:text-primary dark:hover:text-primary border-transparent"
                         }`}
                     >
                         {item.name}

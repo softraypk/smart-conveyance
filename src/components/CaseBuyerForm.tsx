@@ -186,7 +186,7 @@ export default function CaseBuyerForm({caseId, buyerToEdit, onSuccess}: CaseBuye
                     disabled={loading}
                     className="px-6 py-3 rounded-lg text-white bg-primary hover:bg-primary/90 font-bold text-sm"
                 >
-                    {loading ? "Saving..." : buyerToEdit ? "Next: Seller Details" : "Next: Seller Details"}
+                    {loading ? "Saving..." : buyerToEdit ? "Edit Buyer" : "Add Buyer"}
                 </button>
             </div>
         </form>

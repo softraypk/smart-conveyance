@@ -16,13 +16,18 @@ interface Branch {
     name: string;
 }
 
+interface Broker {
+    id?: string;
+    name?: string;
+    email?: string;
+    phone?: string;
+    branchId?: string;
+    emails?: string[];
+}
+
 interface BrokerFormProps {
-    initialValues?: {
-        id?: string;
-        branchId?: string;
-        emails?: string[];
-    };
-    onSubmit: (values: { branchId: string; emails: string[] }) => Promise<void>;
+    initialValues?: Broker;
+    onSubmit: (values: Broker) => Promise<void>;
     loading: boolean;
 }
 
@@ -81,7 +86,11 @@ export default function BrokerForm({initialValues, onSubmit, loading}: BrokerFor
         if (!selectedBranch) return toast.error("Please select a branch.");
         if (emails.some((email) => !email.trim())) return toast.error("Please fill in all email fields.");
 
-        await onSubmit({branchId: selectedBranch, emails});
+        await onSubmit({
+            ...initialValues,
+            branchId: selectedBranch,
+            emails
+        });
     };
 
     const isFormReady = branches.length > 0 || !user?.managedOrgId;

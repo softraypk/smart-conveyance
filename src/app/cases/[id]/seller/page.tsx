@@ -25,7 +25,7 @@ export default function SellerPage() {
     const caseId = params?.id as string | undefined;
 
     const [buyers, setBuyers] = useState<Buyer[]>([]);
-    const [buyerToEdit, setBuyerToEdit] = useState<Buyer | null>(null);
+    const [sellerToEdit, setSellerToEdit] = useState<Buyer | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
@@ -45,13 +45,13 @@ export default function SellerPage() {
 
             const formattedBuyers: Buyer[] = buyerParties.map((b: any) => ({
                 id: b.id,
-                name: b.name || null,
-                phone: b.phone || null,
-                email: b.email || null,
+                name: b.members[0]?.name || null,
+                phone: b.members[0]?.phone || null,
+                email: b.members[0]?.email || null,
                 user: {
-                    email: b.user?.email || "",
-                    name: b.user?.name || "",
-                    role: b.user?.role,
+                    email: b.members[0]?.user?.email || "",
+                    name: b.members[0]?.user?.name || "",
+                    role: b.members[0]?.user?.role,
                 },
             }));
 
@@ -65,14 +65,18 @@ export default function SellerPage() {
     };
 
     const handleEdit = (buyer: Buyer) => {
-        setBuyerToEdit(buyer);
+        setSellerToEdit(buyer);
     };
 
     const handleFormSuccess = () => {
         // after create or update, reload buyer list
         fetchExistingBuyer();
-        setBuyerToEdit(null);
+        setSellerToEdit(null);
     };
+
+    if (!caseId) {
+        return <div>Invalid Case ID</div>; // or loader
+    }
 
     return (
         <div className="flex min-h-screen">
@@ -98,7 +102,7 @@ export default function SellerPage() {
                                 {/* ✅ Pass buyerToEdit and callback to form */}
                                 <CaseSellerForm
                                     caseId={caseId}
-                                    buyerToEdit={buyerToEdit}
+                                    sellerToEdit={sellerToEdit}
                                     onSuccess={handleFormSuccess}
                                 />
 

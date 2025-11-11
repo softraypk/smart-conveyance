@@ -9,10 +9,11 @@ import toast from "react-hot-toast";
 
 interface Broker {
     id?: string;
-    name: string;
-    email: string;
-    phone: string;
+    name?: string;
+    email?: string;
+    phone?: string;
     branchId?: string;
+    emails?: string[];
 }
 
 interface User {

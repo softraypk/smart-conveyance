@@ -46,13 +46,13 @@ export default function BuyerPage() {
 
             const formattedBuyers: Buyer[] = buyerParties.map((b: any) => ({
                 id: b.id,
-                name: b.user?.name || b.name || null,
-                phone: b.phone || null,
-                email: b.user?.email || null,
+                name: b.members[0]?.user?.name || b.name || null,
+                phone: b.members[0]?.phone || null,
+                email: b.members[0]?.user?.email || null,
                 user: {
-                    email: b.user?.email || "",
-                    name: b.user?.name || "",
-                    role: b.user?.role,
+                    email: b.members[0]?.user?.email || "",
+                    name: b.members[0]?.user?.name || "",
+                    role: b.members[0]?.user?.role,
                 },
             }));
 
@@ -74,6 +74,10 @@ export default function BuyerPage() {
         fetchExistingBuyer();
         setBuyerToEdit(null);
     };
+
+    if (!caseId) {
+        return <div>Invalid Case ID</div>; // or loader
+    }
 
     return (
         <div className="flex min-h-screen">

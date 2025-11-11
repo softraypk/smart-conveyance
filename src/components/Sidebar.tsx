@@ -4,6 +4,7 @@ import {useRouter} from "next/navigation";
 import {useEffect, useState} from "react";
 import Navbar from "@/components/Navbar";
 import NavOrg from "@/components/NavOrg";
+import NavBro from "@/components/NavBro";
 
 interface User {
     name: string;
@@ -125,6 +126,76 @@ export default function Sidebar() {
             </header>
         );
     }
+
+    // ✅ BRO_ADMIN Layout
+    if (user.role === "MORTGAGE_BROKER" || user.role === "BROKER") {
+        return (
+            <header
+                className="flex items-center justify-between whitespace-nowrap border-b border-primary/20 px-16 py-4">
+                <div
+                    onClick={() => router.push('/dashboards')}
+                    className="flex items-center gap-4 text-black dark:text-white cursor-pointer">
+                    <div className="h-8 w-8 text-primary">
+                        <svg fill="none" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+                            <g clipPath="url(#clip0_6_535)">
+                                <path
+                                    clipRule="evenodd"
+                                    d="M47.2426 24L24 47.2426L0.757355 24L24 0.757355L47.2426 24ZM12.2426 21H35.7574L24 9.24264L12.2426 21Z"
+                                    fill="currentColor"
+                                    fillRule="evenodd"
+                                ></path>
+                            </g>
+                            <defs>
+                                <clipPath id="clip0_6_535">
+                                    <rect fill="white" height="48" width="48"></rect>
+                                </clipPath>
+                            </defs>
+                        </svg>
+                    </div>
+                    <h2 className="text-xl font-bold">Smart Conveyancing</h2>
+                </div>
+
+                <div className="flex items-center gap-6">
+                    <NavBro/>
+
+                    <div className="flex items-center gap-4">
+                        <button
+                            className="rounded-full p-2 text-black/60 dark:text-white/60 hover:bg-primary/10 dark:hover:bg-primary/20 transition-colors">
+                            <span className="material-symbols-outlined">notifications</span>
+                        </button>
+
+                        <div
+                            onClick={() => setMenuOpen(!menuOpen)}
+                            className="h-10 w-10 rounded-full bg-cover bg-center"
+                            style={{
+                                backgroundImage:
+                                    "url('https://lh3.googleusercontent.com/aida-public/AB6AXuDB25GJbKn0dQzeb5mUKFqrQ_ts3yKEDamQbDtB2o0bRoJ_MbEaMlH0rhZnfLdRYEXbsDIwVlhQ2Hmq5wbmK-j0bK418hRwe2sCSr9oO482yhW9_6fUAuzk6dJAivFMpLQKLH7x8GROzaBe-cAD03O5WT9XNqHtXJlTzaLV9xJvD8xlgIqMyJqSLzEYv83pgiXNMZPk6XEIPhxlfuLKRyNDfLq6YxShWtytwQf63jLeSmRZnawbonJ66020IbpSFuzpRExj1wb0syk_')",
+                            }}
+                        ></div>
+                        {/* Dropdown */}
+                        {menuOpen && (
+                            <div
+                                className="absolute right-0 top-12 w-48 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg animate-fade-in">
+                                <button
+                                    onClick={() => router.push("/users/me")}
+                                    className="block w-full text-left px-4 py-2 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-t-lg"
+                                >
+                                    Profile
+                                </button>
+                                <button
+                                    onClick={handleLogout}
+                                    className="block w-full text-left px-4 py-2 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-t-lg"
+                                >
+                                    Logout
+                                </button>
+                            </div>
+                        )}
+                    </div>
+                </div>
+            </header>
+        );
+    }
+
 
     // ✅ Default Layout (non-admin users)
     return (

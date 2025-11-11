@@ -30,7 +30,7 @@ export function LoginForm() {
                 body: JSON.stringify(payload),
             });
 
-            console.log("Login result:", response);
+            //console.log("Login result:", response);
 
             localStorage.removeItem("authToken");
             localStorage.removeItem("user");

@@ -142,7 +142,7 @@ export default function CaseDetailForm() {
                             >
                                 <option value="">Select Case Type</option>
                                 <option value="SALE">Sale</option>
-                                <option value="LEASE">Purchase</option>
+                                <option value="LEASE">Lease</option>
                             </select>
                         </label>
                     </div>

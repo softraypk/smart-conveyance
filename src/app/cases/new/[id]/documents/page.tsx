@@ -7,21 +7,33 @@ import {useParams} from "next/navigation";
 import {useEffect, useState} from "react";
 import {api} from "@/lib/api";
 
+interface Document {
+    id?: string;
+    caseId?: string;
+    fileId?: string;
+    mortgageApplicationId?: string;
+    kind: string;
+    createdAt: string;
+    updatedAt: string;
+    fileUrl: string;
+}
+
 export default function DocumentsPage() {
     const [documents, setDocuments] = useState<Document[]>([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
     const params = useParams();
-    const id = params.id;
+    const id = params.id as string | undefined;
 
     useEffect(() => {
+        if (!id) return;
         fetchDocuments();
     }, [id]);
 
     const fetchDocuments = async () => {
+        if (!id) return;
         setLoading(true);
         setError("");
-
         try {
             const response = await api(`/cases/${id}`, {method: "GET"});
             if (response.ok) {
@@ -35,6 +47,9 @@ export default function DocumentsPage() {
             setLoading(false);
         }
     };
+
+    if (!id) return <div>Invalid case id</div>;
+
     return (
         <div className="flex min-h-screen">
             <div className="flex flex-col w-full">

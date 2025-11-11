@@ -73,6 +73,10 @@ export default function SellerPage() {
         setSellerToEdit(null);
     };
 
+    if (!caseId) {
+        return <div>Invalid Case ID</div>; // or loader
+    }
+
     return (
         <div className="flex min-h-screen">
             <div className="flex flex-col w-full">

@@ -184,11 +184,11 @@ export default function BrokersPage() {
                                 {brokers.map((broker: Broker) => (
                                     <tr key={broker?.id}
                                         className="border-b border-subtle-light dark:border-subtle-dark hover:bg-background-light dark:hover:bg-background-dark/50 transition-colors">
-                                        <td className="px-4 py-4 font-medium">{broker?.name}</td>
-                                        <td className="px-4 py-4 text-muted-light dark:text-muted-dark">{broker?.email}</td>
-                                        <td className="px-4 py-4 text-muted-light dark:text-muted-dark">{broker?.phone}</td>
+                                        <td className="px-4 py-4 font-medium">{broker?.name || "-"}</td>
+                                        <td className="px-4 py-4 text-muted-light dark:text-muted-dark">{broker?.email || "-"}</td>
+                                        <td className="px-4 py-4 text-muted-light dark:text-muted-dark">{broker?.phone || "-"}</td>
                                         <td className="px-4 py-4"><span
-                                            className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium">{broker?.branch?.name}</span>
+                                            className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium">{broker?.branch?.name || "-"}</span>
                                         </td>
                                         <td className="px-4 py-4 text-muted-light dark:text-muted-dark">Oct 31, 2025
                                             05:53

@@ -27,10 +27,11 @@ export default function CaseTabs() {
     const lastSegment = pathSegments[pathSegments.length - 1];
 
     const tabs = [
-        {name: "General Information", key: "new"},
+        {name: "Case Information", key: "new"},
         {name: "Property Details", key: "property"},
-        {name: "Buyer Details", key: "buyer"},
         {name: "Seller Details", key: "seller"},
+        {name: "Buyer Details", key: "buyer"},
+        {name: "Mortgage Details", key: "mortgage"},
         {name: "Documents", key: "documents"},
         {name: "Overview", key: "overview"},
     ];
