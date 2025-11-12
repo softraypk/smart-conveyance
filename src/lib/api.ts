@@ -1,13 +1,13 @@
 const API = process.env.NEXT_PUBLIC_API_BASE_URL || "";
 
-export async function api(path: string, init: RequestInit = {}) {
-    const token = typeof window !== "undefined" ? localStorage.getItem("authToken") : null;
+export async function api(path: string, init: RequestInit = {}, customToken?: string) {
+    const token = customToken || (typeof window !== "undefined" ? localStorage.getItem("authToken") : null);
     const isFormData = init.body instanceof FormData;
 
     const headers = {
         accept: "*/*",
-        ...(isFormData ? {} : { "Content-Type": "application/json" }),
-        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        ...(isFormData ? {} : {"Content-Type": "application/json"}),
+        ...(token ? {Authorization: `Bearer ${token}`} : {}),
         ...init.headers,
     };
 
@@ -16,7 +16,7 @@ export async function api(path: string, init: RequestInit = {}) {
     console.log("URL: ", url);
 
     try {
-        const response = await fetch(url, { cache: "no-store", ...init, headers });
+        const response = await fetch(url, {cache: "no-store", ...init, headers});
 
         let results = null;
         try {

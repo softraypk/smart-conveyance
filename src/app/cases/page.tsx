@@ -6,6 +6,7 @@ import {useEffect, useState} from "react";
 import {api} from "@/lib/api";
 import toast from "react-hot-toast";
 import dayjs from "dayjs";
+import CaseMortgageForm from "@/components/CaseMortgageForm";
 
 interface User {
     name: string;
@@ -15,19 +16,42 @@ interface User {
 }
 
 interface SingleCase {
-    type: string;
-    property: string;
-    parties: null;
+    id: string;
+    property: {
+        community?: string;
+        [key: string]: any; // in case there are more property fields
+    } | null;
+    parties?: {
+        role?: string;
+        [key: string]: any; // other party details
+    } | null;
+    status?: string;
+    createdAt: string; // ISO date string
+}
+
+
+interface Mortgage {
+    id: string | null;
+    name: string | null;
+    phone: string | null;
+    email: string | null;
+    user: {
+        email: string;
+        name: string;
+        role?: string;
+    };
 }
 
 export default function CasesPage() {
-
+    const [showModal, setShowModal] = useState(false);
+    const [caseId, setCaseId] = useState<string | null>(null);
+    const [mortgageToEdit, setMortgageToEdit] = useState<Mortgage | null>(null);
+    const [singleCase, setSingleCase] = useState<SingleCase | null>(null);
+    const [mortgages, setMortgages] = useState<any>(null);
     const router = useRouter();
     const [user, setUser] = useState<User | null>(null);
-    const [singlecase, setSinglecase] = useState<SingleCase[] | null>(null);
     const [cases, setCases] = useState<any[]>([]);
     const [loading, setLoading] = useState(false);
-
 
     useEffect(() => {
         const storedUser = localStorage.getItem("user");
@@ -63,6 +87,45 @@ export default function CasesPage() {
 
         listCases();
     }, []);
+
+    const fetchExistingMortgage = async (singlecase: SingleCase) => {
+        setLoading(true);
+        try {
+            const mortgageParties = singlecase.parties?.filter((p: any) => p.role === "MORTGAGE_BROKER") || [];
+            console.log(mortgageParties);
+            const formattedMortgages: Mortgage[] = mortgageParties.map((b: any) => ({
+                id: b.id,
+                name: b.members[0]?.user?.name || b.members[0]?.name || null,
+                phone: b.members[0]?.phone || null,
+                email: b.members[0]?.user?.email || null,
+                user: {
+                    email: b.members[0]?.user?.email || "",
+                    name: b.members[0]?.user?.name || "",
+                    role: b.members[0]?.user?.role,
+                },
+            }));
+
+            setMortgages(formattedMortgages);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+
+    const handleEdit = (mortgage: Mortgage) => {
+        setMortgageToEdit(mortgage);
+    };
+
+    const handleFormSuccess = (mortgage: Mortgage) => {
+        setMortgageToEdit(null);
+        setShowModal(false);
+    };
+
+    const handleInvite = async (singleCase: SingleCase) => {
+        fetchExistingMortgage(singleCase);
+        setCaseId(singleCase.id);
+        setShowModal(true);
+    }
 
     if (loading) {
         return (
@@ -160,36 +223,42 @@ export default function CasesPage() {
                                             <td className="px-4 py-4 font-medium" colSpan={6}>No Case Found</td>
                                         </tr>
                                     ) : (
-                                        cases.map((singlecase) => (
+                                        cases.map((singleCase: SingleCase) => (
                                             <tr
-                                                key={singlecase.id}
+                                                key={singleCase.id}
                                                 className="border-b border-subtle-light dark:border-subtle-dark hover:bg-background-light dark:hover:bg-background-dark/50 transition-colors"
                                             >
-                                                <td className="px-4 py-4 font-medium">{singlecase.id}</td>
+                                                <td className="px-4 py-4 font-medium">{singleCase.id}</td>
                                                 <td className="px-4 py-4 text-muted-light dark:text-muted-dark">
-                                                    {singlecase?.property?.community || "-"}
+                                                    {singleCase?.property?.community || "-"}
                                                 </td>
                                                 <td className="px-4 py-4 text-muted-light dark:text-muted-dark">
-                                                    {singlecase.parties?.role || "-"}
+                                                    {singleCase.parties?.role || "-"}
                                                 </td>
                                                 <td className="px-4 py-4">
                                                     <span
                                                         className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary/20 text-primary">
-                                                      {singlecase.status || "In Progress"}
+                                                      {singleCase.status || "In Progress"}
                                                     </span>
                                                 </td>
                                                 <td className="px-4 py-4 text-muted-light dark:text-muted-dark">
-                                                    {dayjs(singlecase.createdAt).format("MMM DD, YYYY hh:mm A") || "-"}
+                                                    {dayjs(singleCase.createdAt).format("MMM DD, YYYY hh:mm A") || "-"}
                                                 </td>
                                                 <td className="px-4 py-4">
                                                     <button
-                                                        onClick={() => router.push(`/cases/${singlecase.id}`)}
+                                                        onClick={() => handleInvite(singleCase)}
+                                                        className="font-semibold text-primary hover:underline mr-3">
+                                                        Invite Broker
+                                                    </button>
+
+                                                    <button
+                                                        onClick={() => router.push(`/cases/${singleCase.id}`)}
                                                         className="font-semibold text-primary hover:underline mr-3"
                                                     >
                                                         Edit
                                                     </button>
                                                     <button
-                                                        onClick={() => router.push(`/cases/${singlecase.id}`)}
+                                                        onClick={() => router.push(`/cases/${singleCase.id}`)}
                                                         className="font-semibold text-primary hover:underline"
                                                     >
                                                         View
@@ -202,6 +271,95 @@ export default function CasesPage() {
                             </div>
                         </div>
                     </div>
+                    {showModal && (
+                        <div
+                            className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm"
+                        >
+                            {/* Modal content */}
+                            <div
+                                className="w-full max-w-2xl mx-auto bg-white dark:bg-background-dark/50 rounded-2xl shadow-2xl p-12 space-y-10 border border-zinc-200 dark:border-zinc-800 relative"
+                            >
+                                {/* Close button */}
+                                <button
+                                    onClick={() => setShowModal(false)}
+                                    className="absolute top-3 right-3 text-zinc-500 hover:text-zinc-800 dark:hover:text-white text-2xl font-bold"
+                                >
+                                    ×
+                                </button>
+
+                                <div className="space-y-4 text-center">
+                                    <h1 className="text-4xl font-bold text-zinc-900 dark:text-zinc-50 mt-6">
+                                        Invite Broker
+                                    </h1>
+                                    <p className="text-zinc-500 dark:text-zinc-400 text-lg">
+                                        Enter the details below to send an invitation.
+                                    </p>
+                                </div>
+
+                                <CaseMortgageForm
+                                    caseId={caseId}
+                                    mortgageToEdit={mortgageToEdit}
+                                    onSuccess={(mortgage: Mortgage) => handleFormSuccess(mortgage)}
+                                />
+
+                                {/* 🧩 Buyer Table */}
+                                <div
+                                    className="mt-6 overflow-x-auto rounded-lg border border-gray-200 dark:border-gray-700">
+                                    {loading ? (
+                                        <p className="p-6 text-sm text-gray-500 dark:text-gray-400">
+                                            Loading buyers...
+                                        </p>
+                                    ) : (
+                                        <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                                            <thead className="bg-gray-50 dark:bg-gray-800">
+                                            <tr>
+                                                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-600 dark:text-gray-300">#</th>
+                                                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-600 dark:text-gray-300">Email</th>
+                                                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-600 dark:text-gray-300">Name</th>
+                                                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-600 dark:text-gray-300">Phone</th>
+                                                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-600 dark:text-gray-300">Actions</th>
+                                            </tr>
+                                            </thead>
+                                            <tbody
+                                                className="bg-white dark:bg-slate-800 divide-y divide-gray-100 dark:divide-gray-700">
+                                            {mortgages.length > 0 ? (
+                                                mortgages.map((mortgage: Mortgage, index: number) => (
+                                                    <tr key={mortgage.id}>
+                                                        <td className="px-6 py-4 text-sm text-gray-700 dark:text-gray-200">{index + 1}</td>
+                                                        <td className="px-6 py-4 text-sm text-gray-700 dark:text-gray-200">
+                                                            {mortgage.user.email || "—"}
+                                                        </td>
+                                                        <td className="px-6 py-4 text-sm text-gray-700 dark:text-gray-200">
+                                                            {mortgage.name || "—"}
+                                                        </td>
+                                                        <td className="px-6 py-4 text-sm text-gray-700 dark:text-gray-200">
+                                                            {mortgage.phone || "—"}
+                                                        </td>
+                                                        <td className="px-6 py-4 text-sm text-gray-700 dark:text-gray-200">
+                                                            <button
+                                                                onClick={() => handleEdit(mortgage)}
+                                                                className="text-blue-600 hover:underline"
+                                                            >
+                                                                Edit
+                                                            </button>
+                                                        </td>
+                                                    </tr>
+                                                ))
+                                            ) : (
+                                                <tr>
+                                                    <td colSpan={5}
+                                                        className="px-6 py-4 text-center text-sm text-gray-500 dark:text-gray-400">
+                                                        No Mortgage found
+                                                    </td>
+                                                </tr>
+                                            )}
+                                            </tbody>
+                                        </table>
+                                    )}
+                                </div>
+                            </div>
+                        </div>
+                    )}
                 </main>
             </div>
         );
@@ -293,38 +451,46 @@ export default function CasesPage() {
                                             <td className="px-4 py-4 font-medium" colSpan={6}>No Case Found</td>
                                         </tr>
                                     ) : (
-                                        cases.map((singlecase) => (
+                                        cases.map((singleCase: any) => (
                                             <tr
-                                                key={singlecase.id}
+                                                key={singleCase.id}
                                                 className="border-b border-subtle-light dark:border-subtle-dark hover:bg-background-light dark:hover:bg-background-dark/50 transition-colors"
                                             >
-                                                <td className="px-4 py-4 font-medium">{singlecase.id}</td>
+                                                <td className="px-4 py-4 font-medium">{singleCase.id}</td>
                                                 <td className="px-4 py-4 text-muted-light dark:text-muted-dark">
-                                                    {singlecase?.property?.community || "-"}
+                                                    {singleCase?.property?.community || "-"}
                                                 </td>
                                                 <td className="px-4 py-4 text-muted-light dark:text-muted-dark">
-                                                    {singlecase.parties?.role || "-"}
+                                                    {singleCase.parties?.role || "-"}
                                                 </td>
                                                 <td className="px-4 py-4">
                                                     <span
                                                         className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary/20 text-primary">
-                                                      {singlecase.status || "In Progress"}
+                                                      {singleCase.status || "In Progress"}
                                                     </span>
                                                 </td>
                                                 <td className="px-4 py-4 text-muted-light dark:text-muted-dark">
-                                                    {dayjs(singlecase.createdAt).format("MMM DD, YYYY hh:mm A") || "-"}
+                                                    {dayjs(singleCase.createdAt).format("MMM DD, YYYY hh:mm A") || "-"}
                                                 </td>
                                                 <td className="px-4 py-4">
                                                     {user?.role === "BROKER" && (
-                                                        <button
-                                                            onClick={() => router.push(`/cases/${singlecase.id}`)}
-                                                            className="font-semibold text-primary hover:underline mr-3"
-                                                        >
-                                                            Edit
-                                                        </button>
+                                                        <>
+                                                            <button
+                                                                onClick={() => handleInvite(singleCase.id)}
+                                                                className="font-semibold text-primary hover:underline mr-3">
+                                                                Invite Broker
+                                                            </button>
+
+                                                            <button
+                                                                onClick={() => router.push(`/cases/${singleCase.id}`)}
+                                                                className="font-semibold text-primary hover:underline mr-3"
+                                                            >
+                                                                Edit
+                                                            </button>
+                                                        </>
                                                     )}
                                                     <button
-                                                        onClick={() => router.push(`/cases/${singlecase.id}`)}
+                                                        onClick={() => router.push(`/cases/${singleCase.id}`)}
                                                         className="font-semibold text-primary hover:underline"
                                                     >
                                                         View
@@ -337,6 +503,95 @@ export default function CasesPage() {
                             </div>
                         </div>
                     </div>
+                    {showModal && (
+                        <div
+                            className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm"
+                        >
+                            {/* Modal content */}
+                            <div
+                                className="w-full max-w-2xl mx-auto bg-white dark:bg-background-dark/50 rounded-2xl shadow-2xl p-12 space-y-10 border border-zinc-200 dark:border-zinc-800 relative"
+                            >
+                                {/* Close button */}
+                                <button
+                                    onClick={() => setShowModal(false)}
+                                    className="absolute top-3 right-3 text-zinc-500 hover:text-zinc-800 dark:hover:text-white text-2xl font-bold"
+                                >
+                                    ×
+                                </button>
+
+                                <div className="space-y-4 text-center">
+                                    <h1 className="text-4xl font-bold text-zinc-900 dark:text-zinc-50 mt-6">
+                                        Invite Broker
+                                    </h1>
+                                    <p className="text-zinc-500 dark:text-zinc-400 text-lg">
+                                        Enter the details below to send an invitation.
+                                    </p>
+                                </div>
+
+                                <CaseMortgageForm
+                                    caseId={caseId}
+                                    mortgageToEdit={mortgageToEdit}
+                                    onSuccess={(mortgage: Mortgage) => handleFormSuccess(mortgage)}
+                                />
+
+                                {/* 🧩 Buyer Table */}
+                                <div
+                                    className="mt-6 overflow-x-auto rounded-lg border border-gray-200 dark:border-gray-700">
+                                    {loading ? (
+                                        <p className="p-6 text-sm text-gray-500 dark:text-gray-400">
+                                            Loading buyers...
+                                        </p>
+                                    ) : (
+                                        <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                                            <thead className="bg-gray-50 dark:bg-gray-800">
+                                            <tr>
+                                                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-600 dark:text-gray-300">#</th>
+                                                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-600 dark:text-gray-300">Email</th>
+                                                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-600 dark:text-gray-300">Name</th>
+                                                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-600 dark:text-gray-300">Phone</th>
+                                                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-600 dark:text-gray-300">Actions</th>
+                                            </tr>
+                                            </thead>
+                                            <tbody
+                                                className="bg-white dark:bg-slate-800 divide-y divide-gray-100 dark:divide-gray-700">
+                                            {mortgages.length > 0 ? (
+                                                mortgages.map((mortgage: Mortgage, index: number) => (
+                                                    <tr key={mortgage.id}>
+                                                        <td className="px-6 py-4 text-sm text-gray-700 dark:text-gray-200">{index + 1}</td>
+                                                        <td className="px-6 py-4 text-sm text-gray-700 dark:text-gray-200">
+                                                            {mortgage.user.email || "—"}
+                                                        </td>
+                                                        <td className="px-6 py-4 text-sm text-gray-700 dark:text-gray-200">
+                                                            {mortgage.name || "—"}
+                                                        </td>
+                                                        <td className="px-6 py-4 text-sm text-gray-700 dark:text-gray-200">
+                                                            {mortgage.phone || "—"}
+                                                        </td>
+                                                        <td className="px-6 py-4 text-sm text-gray-700 dark:text-gray-200">
+                                                            <button
+                                                                onClick={() => handleEdit(mortgage)}
+                                                                className="text-blue-600 hover:underline"
+                                                            >
+                                                                Edit
+                                                            </button>
+                                                        </td>
+                                                    </tr>
+                                                ))
+                                            ) : (
+                                                <tr>
+                                                    <td colSpan={5}
+                                                        className="px-6 py-4 text-center text-sm text-gray-500 dark:text-gray-400">
+                                                        No Mortgage found
+                                                    </td>
+                                                </tr>
+                                            )}
+                                            </tbody>
+                                        </table>
+                                    )}
+                                </div>
+                            </div>
+                        </div>
+                    )}
                 </main>
             </div>
         )

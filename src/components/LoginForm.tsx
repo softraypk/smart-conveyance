@@ -3,6 +3,7 @@
 import {SyntheticEvent, useState} from "react";
 import {useRouter} from "next/navigation";
 import {api} from "@/lib/api";
+import toast from "react-hot-toast";
 
 export function LoginForm() {
     const [email, setEmail] = useState('');
@@ -40,10 +41,10 @@ export function LoginForm() {
                 localStorage.setItem("authToken", response.results.authToken);
                 localStorage.setItem("user", JSON.stringify(response.results.user));
 
-                setMessage("Login successful!");
+                toast.success("Login successful!");
                 router.push("/dashboards");
             } else {
-                setError(response.error || `Error ${response.status}`);
+                toast.error(response.error || `Error ${response.status}`)
             }
         } catch (err) {
             console.error("Login error:", err);
@@ -76,7 +77,9 @@ export function LoginForm() {
             </div>
             <div className="flex items-center justify-end">
                 <div className="text-sm">
-                    <button onClick={() => router.push('/users/forgetpassword')} className="font-medium text-primary hover:text-primary/80">Forgot your password?</button>
+                    <button onClick={() => router.push('/users/forgetpassword')}
+                            className="font-medium text-primary hover:text-primary/80">Forgot your password?
+                    </button>
                 </div>
             </div>
             <div>

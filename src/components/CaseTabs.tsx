@@ -31,7 +31,7 @@ export default function CaseTabs() {
         {name: "Property Details", key: "property"},
         {name: "Seller Details", key: "seller"},
         {name: "Buyer Details", key: "buyer"},
-        {name: "Mortgage Details", key: "mortgage"},
+        //{name: "Mortgage Details", key: "mortgage"},
         {name: "Documents", key: "documents"},
         {name: "Overview", key: "overview"},
     ];

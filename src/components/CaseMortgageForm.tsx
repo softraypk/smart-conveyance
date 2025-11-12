@@ -2,10 +2,22 @@ import {FormEvent, useEffect, useState} from "react";
 import {api} from "@/lib/api";
 import toast from "react-hot-toast";
 
+interface Mortgage {
+    id: string | null;
+    name: string | null;
+    phone: string | null;
+    email: string | null;
+    user: {
+        email: string;
+        name: string;
+        role?: string;
+    };
+}
+
 interface CaseBuyerFormProps {
-    caseId: string;
+    caseId: string | null;
     mortgageToEdit?: any | null;
-    onSuccess?: () => void;
+    onSuccess?: (mortgage: Mortgage) => void; // usually callback returns void
 }
 
 export default function CaseMortgageForm({caseId, mortgageToEdit, onSuccess}: CaseBuyerFormProps) {
@@ -99,7 +111,7 @@ export default function CaseMortgageForm({caseId, mortgageToEdit, onSuccess}: Ca
 
             if (response.ok) {
                 toast.success(`Buyer ${mortgageToEdit ? "updated" : "created"} successfully`);
-                onSuccess?.(); // refresh parent table
+                onSuccess?.(mortgageToEdit); // refresh parent table
             } else {
                 toast.error("Error: " + response.results?.message);
             }
@@ -186,7 +198,7 @@ export default function CaseMortgageForm({caseId, mortgageToEdit, onSuccess}: Ca
                     disabled={loading}
                     className="px-6 py-3 rounded-lg text-white bg-primary hover:bg-primary/90 font-bold text-sm"
                 >
-                    {loading ? "Saving..." : mortgageToEdit ? "Edit Buyer" : "Add Buyer"}
+                    {loading ? "Saving..." : mortgageToEdit ? "Edit Broker" : "Invite Broker"}
                 </button>
             </div>
         </form>
