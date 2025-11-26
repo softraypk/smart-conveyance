@@ -6,6 +6,8 @@ import {FormEvent, useState} from "react";
 import {api} from "@/lib/api";
 import toast from "react-hot-toast";
 
+export const dynamic = "force-dynamic"; // <— FIXES BUILD ERROR
+
 export default function ReSetPasswordPage() {
     const [loading, setLoading] = useState(false);
     const [password, setPassword] = useState("");
