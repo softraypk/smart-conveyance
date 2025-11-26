@@ -1,4 +1,4 @@
-"use client"; // ✅ must be the very first line
+"use client"; // must be the very first line
 
 import {Header} from "@/components/Header";
 import {useSearchParams, useRouter} from "next/navigation";
@@ -6,14 +6,13 @@ import {FormEvent, useState} from "react";
 import {api} from "@/lib/api";
 import toast from "react-hot-toast";
 
-export default function ReSetPasswordPage() { // ✅ capitalize component name
-    const [loading, setLoading] = useState(false); // ✅ default should be false
+export default function ReSetPasswordPage() {
+    const [loading, setLoading] = useState(false);
     const [password, setPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
 
     const searchParams = useSearchParams();
     const token = searchParams.get("token");
-
     const router = useRouter();
 
     const handleResetPassword = async (e: FormEvent) => {
@@ -36,9 +35,9 @@ export default function ReSetPasswordPage() { // ✅ capitalize component name
                 "/auth/password-reset",
                 {
                     method: "PATCH",
-                    body: JSON.stringify({newPassword: password}),
+                    body: JSON.stringify({ newPassword: password }),
                 },
-                token // ✅ use token as custom param
+                token
             );
 
             if (response.ok) {
@@ -54,8 +53,6 @@ export default function ReSetPasswordPage() { // ✅ capitalize component name
             setLoading(false);
         }
     };
-
-    console.log("Token:", token);
 
     return (
         <div className="flex flex-col min-h-screen">
@@ -78,11 +75,8 @@ export default function ReSetPasswordPage() { // ✅ capitalize component name
                         <div className="space-y-4">
                             {/* Password Field */}
                             <div className="relative">
-                                <label className="sr-only" htmlFor="password">
-                                    Password
-                                </label>
-                                <span
-                                    className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500">lock</span>
+                                <label className="sr-only" htmlFor="password">Password</label>
+                                <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500">lock</span>
                                 <input
                                     value={password}
                                     onChange={(e) => setPassword(e.target.value)}
@@ -97,13 +91,8 @@ export default function ReSetPasswordPage() { // ✅ capitalize component name
 
                             {/* Confirm Password Field */}
                             <div className="relative">
-                                <label className="sr-only" htmlFor="confirm-password">
-                                    Confirm Password
-                                </label>
-                                <span
-                                    className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500">
-                  lock
-                </span>
+                                <label className="sr-only" htmlFor="confirm-password">Confirm Password</label>
+                                <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500">lock</span>
                                 <input
                                     value={confirmPassword}
                                     onChange={(e) => setConfirmPassword(e.target.value)}
