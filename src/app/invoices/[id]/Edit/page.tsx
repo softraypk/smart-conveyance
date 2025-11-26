@@ -10,7 +10,12 @@ export default function EditInvoicePage() {
     const [isLoading, setIsLoading] = useState(false);
     const params = useParams();
 
-    const invoiceId: string | null = params?.id ?? null;
+    const rawId = params?.id;
+
+    const invoiceId: string | null = Array.isArray(rawId)
+        ? rawId[0]
+        : rawId ?? null;
+
 
     if (!invoiceId) {
         return (

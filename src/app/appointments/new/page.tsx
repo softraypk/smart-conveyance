@@ -7,7 +7,7 @@ import AppointmentForm from "@/components/AppointmentForm";
 
 export default function AddAppointment() {
     const [loading, setLoading] = useState(true);
-    const caseId = null;
+    const bookingId = null;
 
     return (
         <div className="flex flex-col min-h-screen">
@@ -25,7 +25,7 @@ export default function AddAppointment() {
                     </div>
 
                     <div className="bg-white dark:bg-subtle-dark/50 rounded-lg shadow-sm p-8">
-                        <AppointmentForm mode="new" caseId={caseId} setLoading={setLoading}/>
+                        <AppointmentForm mode="edit" bookingId={bookingId} setLoading={setLoading}/>
                     </div>
                 </div>
             </main>

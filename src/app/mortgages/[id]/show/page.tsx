@@ -38,7 +38,7 @@ export default function ShowMortgagePage() {
         <div className="flex flex-col min-h-screen">
             <Sidebar/>
             <main className="flex-1 px-4 sm:px-6 lg:px-8 py-8">
-                <div className="max-w-4xl mx-auto">
+                <div className="max-w-7xl mx-auto">
                     {/* HEADER */}
                     <div className="mb-6">
                         <h1 className="text-3xl font-bold text-gray-900 dark:text-white">

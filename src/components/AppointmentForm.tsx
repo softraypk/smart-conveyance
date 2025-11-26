@@ -6,15 +6,14 @@ import toast from "react-hot-toast";
 type Mode = "new" | "edit";
 
 interface AppointmentFormProps {
-    mode?: Mode;
-    caseId?: string | null;
-    setLoading: (loading: boolean) => void;
+    mode?: "new" | "edit";
+    bookingId?: string | null;
+    setLoading: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-export default function AppointmentForm({mode = "new", caseId = null, setLoading,}: AppointmentFormProps) {
+export default function AppointmentForm({mode = "new", bookingId = null, setLoading,}: AppointmentFormProps) {
     const [trusteeOfficeId, setTrusteeOfficeId] = useState("");
-    const [selectedCaseId, setSelectedCaseId] = useState<string | null>(caseId || null);
-    const [bookingId, setBookingId] = useState(null);
+    const [caseId, setCaseId] = useState("");
     const [start, setStart] = useState("");
     const [end, setEnd] = useState("");
     const [repName, setRepName] = useState("");
@@ -56,12 +55,11 @@ export default function AppointmentForm({mode = "new", caseId = null, setLoading
     // ----------------------------
     const loadAppointmentData = async () => {
         try {
-            const res = await api(`/appointments/${caseId}`, {method: "GET"});
+            const res = await api(`/appointments/${bookingId}`, {method: "GET"});
 
             if (res.ok) {
                 const a = res.results.data;
-                setBookingId(a?.id);
-                setSelectedCaseId(a.caseId || "");
+                setCaseId(a.caseId || "");
                 setTrusteeOfficeId(a.trusteeOfficeId || "");
                 setStart(a.start?.slice(0, 10) || "");
                 setEnd(a.end?.slice(0, 10) || "");
@@ -131,8 +129,8 @@ export default function AppointmentForm({mode = "new", caseId = null, setLoading
                     </span>
 
                     <select
-                        value={selectedCaseId}
-                        onChange={(e) => setSelectedCaseId(e.target.value)}
+                        value={caseId}
+                        onChange={(e) => setCaseId(e.target.value)}
                         className="w-full pl-10 pr-4 py-2 bg-background-light dark:bg-background-dark border border-border-light dark:border-border-dark rounded-md">
                         <option value="">Select Case</option>
                         {cases.map((item: any) => (

@@ -9,7 +9,11 @@ import AppointmentForm from "@/components/AppointmentForm";
 export default function EditAppointment() {
     const [loading, setLoading] = useState(true);
     const params = useParams();
-    const bookingId = params.id || null;
+    const bookingIdParam = params?.id;
+
+    const bookingId = Array.isArray(bookingIdParam)
+        ? bookingIdParam[0]
+        : bookingIdParam || null;
 
     return (
         <div className="flex flex-col min-h-screen">
@@ -27,7 +31,11 @@ export default function EditAppointment() {
                     </div>
 
                     <div className="bg-white dark:bg-subtle-dark/50 rounded-lg shadow-sm p-8">
-                        <AppointmentForm mode="edit" bookingId={bookingId} setLoading={setLoading}/>
+                        <AppointmentForm
+                            mode="edit"
+                            bookingId={bookingId}
+                            setLoading={setLoading}
+                        />
                     </div>
                 </div>
             </main>

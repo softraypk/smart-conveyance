@@ -8,7 +8,7 @@ import {useState} from "react";
 export default function NewInvoicePage() {
     const [isLoading, setIsLoading] = useState(false);
 
-    const invoiceId: string = null;
+    const invoiceId: string | null = null;
 
     return (
         <div className="flex flex-col min-h-screen">

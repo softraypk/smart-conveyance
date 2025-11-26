@@ -105,7 +105,7 @@ function Appointments() {
                                         </td>
                                         <td className="px-6 py-4 text-right">
                                             <a className="font-medium text-primary hover:underline"
-                                               href={`/appointments/${c.caseId}/edit`}>View
+                                               href={`/appointments/${c.id}/edit`}>View
                                                 Appointment</a>
                                         </td>
                                     </tr>
