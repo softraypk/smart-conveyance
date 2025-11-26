@@ -6,6 +6,8 @@ import {FormEvent, useState} from "react";
 import {api} from "@/lib/api";
 import toast from "react-hot-toast";
 
+export const dynamic = "force-dynamic";
+
 export default function SetPasswordPage() { // ✅ capitalize component name
     const [loading, setLoading] = useState(false); // ✅ default should be false
     const [password, setPassword] = useState("");
