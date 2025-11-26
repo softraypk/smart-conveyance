@@ -4,6 +4,8 @@ import {useEffect, useState} from "react";
 import OrgAdmin from "@/components/OrgAdmin";
 import SCAdmin from "@/components/ScAdmin";
 import MorgAdmin from "@/components/MorgAdmin";
+import TrustAdmin from "@/components/TrustAdmin";
+import PageLoader from "@/components/PageLoader";
 
 interface User {
     name: string;
@@ -29,7 +31,7 @@ export default function DashboardsPage() {
     if (!user) {
         return (
             <div className="flex items-center justify-center h-screen text-gray-500">
-                Loading user...
+                <PageLoader/>
             </div>
         );
     }
@@ -38,6 +40,8 @@ export default function DashboardsPage() {
         return <OrgAdmin/>;
     } else if (user?.role === "MORTGAGE_BROKER" || user?.role === "BROKER") {
         return <MorgAdmin/>;
+    } else if (user?.role === "TRUSTEE") {
+        return <TrustAdmin/>;
     } else {
         return <SCAdmin/>;
     }

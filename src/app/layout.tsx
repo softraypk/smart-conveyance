@@ -21,6 +21,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined"
                 rel="stylesheet"
             />
+            <link
+                href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined"
+                rel="stylesheet"
+            />
         </head>
         <body className="bg-background-light dark:bg-background-dark">
         {children}

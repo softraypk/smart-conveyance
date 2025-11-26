@@ -1,66 +1,62 @@
 /* themes.css */
 
 @theme {
-    /* Fonts */
     --font-display: "Work Sans", sans-serif;
 
-    /* Border Radius */
-    --radius: 0.5rem;      /* default border radius */
+    /* Radius */
+    --radius: 0.5rem;
     --radius-default: 0.5rem;
     --radius-lg: 1rem;
     --radius-xl: 1.5rem;
     --radius-full: 9999px;
 
-    /* Brand Colors */
+    /* Brand colors */
     --color-primary: #0e6baa;
 
     /* Backgrounds */
     --color-background-light: #f6f7f8;
     --color-background-dark: #101b22;
 
-    /* Accent & Utility Colors */
-    --color-muted-light: #6b7280;
-    --color-muted-dark: #9ca3af;
+    /* Cards / Surfaces */
+    --color-content-light: #ffffff;
+    --color-content-dark: #182630;
+
+    /* Text colors */
+    --color-text-light: #0d161b;
+    --color-text-dark: #e3e7e9;
+
+    /* Muted text */
+    --color-text-muted-light: #6b7280;
+    --color-text-muted-dark: #9ca3af;
+
+    /* Borders */
     --color-border-light: #e5e7eb;
     --color-border-dark: #374151;
 
-    /* Semantic Support */
     --color-success: #22c55e;
     --color-warning: #f59e0b;
     --color-danger: #ef4444;
-
-    --color-card-light: #ffffff;
-    --color-card-dark: #2d3748;
-
-    --color-text-light: #212529;
-    --color-text-dark: #e2e8f0;
-
-    --color-subtext-light: #6c757d;
-    --color-subtext-dark: #a0aec0;
 }
 
-/* Dark theme override using class */
+/* Dark theme override */
 .dark {
     --color-background-light: #101b22;
     --color-background-dark: #f6f7f8;
 
-    --color-card-light: #2d3748;
-    --color-card-dark: #ffffff;
+    --color-content-light: #182630;
+    --color-content-dark: #ffffff;
 
-    --color-text-light: #e2e8f0;
+    --color-text-light: #e3e8f0;
     --color-text-dark: #212529;
 
-    --color-subtext-light: #a0aec0;
-    --color-subtext-dark: #6c757d;
+    --color-text-muted-light: #9ca3af;
+    --color-text-muted-dark: #6b7280;
 
     --color-border-light: #374151;
     --color-border-dark: #e5e7eb;
-
-    --color-muted-light: #9ca3af;
-    --color-muted-dark: #6b7280;
 }
 
-/* Custom status colors */
+/* Status colors */
 .status-approved {
     @apply text-green-600 dark:text-green-400;
 }
@@ -76,4 +72,3 @@
 .status-default {
     @apply text-gray-600 dark:text-gray-400;
 }
-

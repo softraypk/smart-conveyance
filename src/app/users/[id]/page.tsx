@@ -7,9 +7,10 @@ import Sidebar from "@/components/Sidebar";
 import {useRouter} from "next/navigation";
 import {motion, AnimatePresence} from "framer-motion";
 import toast from "react-hot-toast";
+import {TrustHeader} from "@/components/TrustHeader";
 
 interface User {
-    id: number;
+    id: string;
     name: string;
     email: string;
     role?: string;
@@ -17,6 +18,12 @@ interface User {
     orgId: string;
     branchId: string;
     managedOrgId?: string;
+    managedOrg: {
+        legalName: string;
+    },
+    trusteeOffice: {
+        name: string;
+    }
 }
 
 interface Organization {
@@ -171,8 +178,116 @@ export default function UserProfile({params}: { params: Promise<{ id: string }> 
         );
     }
 
+    if (user.role === "TRUSTEE") {
+        return (
+            <div className="flex h-screen w-full">
+                <Sidebar/>
+                <main className="flex-1 flex flex-col">
+                    <TrustHeader/>
+                    <div className="flex-1 p-8">
+                        <div className="max-w-4xl mx-auto">
+                            <header className="mb-8">
+                                <h1 className="text-3xl font-bold text-black dark:text-white">
+                                    Profile &amp; Authentication
+                                </h1>
+                            </header>
+
+                            {loading ? (
+                                <p className="text-gray-500">Loading...</p>
+                            ) : (
+                                <div className="space-y-12">
+                                    {/* Profile Section */}
+                                    <section className="bg-white dark:bg-subtle-dark/50 rounded-lg p-6 shadow-sm">
+                                        <h2 className="text-2xl font-bold text-black dark:text-white mb-6">Profile</h2>
+                                        <div className="flex flex-col sm:flex-row items-start gap-8">
+                                            <div
+                                                className="flex-shrink-0 w-32 h-32 rounded-full bg-cover bg-center"
+                                                style={{
+                                                    backgroundImage:
+                                                        'url("https://lh3.googleusercontent.com/aida-public/AB6AXuCok-Zcax6FUn6HGi2ZvY9BQXljMRfv8nPR1LU_-594guRRJ_8BSBX_6J2P2BrZHLjrjXAjaw8_EMDSm6chgpFYpHklGlryFCxYawIVC0ErgBuRye8rU_RXjKH0lCGwPExre7VS-3M5II3s8AStNStEoAjTZm3UxybIj8NpD_ZWnUHp2wTmX5VjduG6xea_h-7xSX_5UreZJL2C9YYetVpgeA_UP_5y2EIApUgVzpV-raSZvS83ztSecp-7K-1SEfCHBNfuSS6e33IZ")',
+                                                }}
+                                            ></div>
+
+                                            <div className="flex-1 space-y-4">
+                                                <div>
+                                                    <p className="text-2xl font-bold text-black dark:text-white">
+                                                        {user?.name ?? "-"}
+                                                    </p>
+                                                    <p className="text-black/60 dark:text-white/60">{user?.email ?? "-"}</p>
+                                                    <p className="text-black/60 dark:text-white/60">{user?.phone ?? "-"}</p>
+                                                </div>
+                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4 pt-4">
+                                                    <div className="flex flex-col">
+                                                <span className="text-sm font-medium text-black/60 dark:text-white/60">
+                                                    Role
+                                                </span>
+                                                        <span className="text-base text-black dark:text-white">
+                                                    {user?.role ?? "-"}
+                                                </span>
+                                                    </div>
+                                                    <div className="flex flex-col">
+                                                <span className="text-sm font-medium text-black/60 dark:text-white/60">
+                                                    Organization
+                                                </span>
+                                                        <span
+                                                            className="text-base text-black dark:text-white"> {user?.trusteeOffice?.name || "-"} </span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </section>
+
+                                    {/* Security Section */}
+                                    <section className="bg-white dark:bg-subtle-dark/50 rounded-lg p-6 shadow-sm">
+                                        <h2 className="text-2xl font-bold text-black dark:text-white mb-6">Security</h2>
+                                        <div className="space-y-6">
+                                            <div
+                                                className="flex items-center justify-between border-b border-black/10 dark:border-white/10 pb-4">
+                                                <div>
+                                                    <h3 className="font-semibold text-black dark:text-white">
+                                                        Linked Accounts
+                                                    </h3>
+                                                    <p className="text-sm text-black/60 dark:text-white/60">
+                                                        Connect your UAE PASS for seamless login.
+                                                    </p>
+                                                </div>
+                                                <div className="flex items-center gap-2">
+                                                    <span className="font-medium text-primary">UAE PASS ID</span>
+                                                    <span className="material-symbols-outlined text-green-500">
+                                                check_circle
+                                            </span>
+                                                </div>
+                                            </div>
+                                            <div className="flex items-center justify-between">
+                                                <div>
+                                                    <h3 className="font-semibold text-black dark:text-white">
+                                                        Two-Factor Authentication (2FA)
+                                                    </h3>
+                                                    <p className="text-sm text-black/60 dark:text-white/60">
+                                                        Add an extra layer of security to your account.
+                                                    </p>
+                                                </div>
+                                                <label className="relative inline-flex items-center cursor-pointer">
+                                                    <input className="sr-only peer" type="checkbox" value=""/>
+                                                    <div
+                                                        className="w-11 h-6 bg-black/20 peer-focus:outline-none rounded-full peer dark:bg-white/20 peer-checked:after:translate-x-full after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </section>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                </main>
+            </div>
+        )
+    }
+
+
     return (
-        <div className={user?.role === "ORG_ADMIN" ? "flex flex-col min-h-screen" : "flex h-screen"}>
+        <div
+            className={user?.role === "ORG_ADMIN" || user?.role === "MORTGAGE_BROKER" || user?.role === "BROKER" ? "flex flex-col min-h-screen" : "flex h-screen"}>
             <Sidebar/>
             <main className="flex-1 container mx-auto px-4 sm:px-6 lg:px-8 py-8">
                 <div className="max-w-4xl mx-auto">
@@ -219,7 +334,8 @@ export default function UserProfile({params}: { params: Promise<{ id: string }> 
                                                 <span className="text-sm font-medium text-black/60 dark:text-white/60">
                                                     Organization
                                                 </span>
-                                                <span className="text-base text-black dark:text-white"> - </span>
+                                                <span
+                                                    className="text-base text-black dark:text-white"> {user?.managedOrg?.legalName || "-"} </span>
                                             </div>
                                         </div>
                                     </div>
@@ -273,7 +389,7 @@ export default function UserProfile({params}: { params: Promise<{ id: string }> 
                                     <button
                                         onClick={() => setShowOrgModal(true)} //onClick={() => router.push(`/users/${user.id}/edit`)}
                                         className="w-full sm:w-auto px-6 py-3 rounded-lg bg-primary text-white font-bold hover:opacity-90 transition-opacity">
-                                        Organizational Porfile
+                                        Organizational Profile
                                     </button>
                                 </footer>
                             ) : (
@@ -562,7 +678,7 @@ export default function UserProfile({params}: { params: Promise<{ id: string }> 
                                     {/*    ></textarea>*/}
                                     {/*</div>*/}
 
-                                    <button onClick={() => router.push(`/users/${user.id}/edit`)}
+                                    <button onClick={() => router.push(`/users/${user?.id}/edit`)}
                                             className="w-full flex items-center justify-center gap-2 rounded bg-primary py-2.5 px-4 text-sm font-semibold text-white shadow-sm hover:bg-primary/90"
                                     >
                                         Update Profile

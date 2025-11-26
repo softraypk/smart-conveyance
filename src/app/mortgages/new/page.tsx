@@ -9,11 +9,11 @@ export default function NewMortgagePage() {
     const [caseId, setCaseId] = useState<number | null>(null);
     const [loading, setLoading] = useState(false);
 
-    if (!id) {
-        return (
-            <div className="flex flex-col min-h-screen">No Record found! </div>
-        )
-    }
+    // if (!id) {
+    //     return (
+    //         <div className="flex flex-col min-h-screen">No Record found! </div>
+    //     )
+    // }
 
     if (loading) {
         return (

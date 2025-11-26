@@ -8,7 +8,7 @@ import {useEffect, useState} from "react";
 import {api} from "@/lib/api";
 import CaseSellerForm from "@/components/CaseSellerForm";
 
-interface Buyer {
+interface Seller {
     id: string;
     name: string | null;
     phone: string | null;
@@ -24,8 +24,8 @@ export default function SellerPage() {
     const params = useParams();
     const caseId = params?.id as string | undefined;
 
-    const [buyers, setBuyers] = useState<Buyer[]>([]);
-    const [sellerToEdit, setSellerToEdit] = useState<Buyer | null>(null);
+    const [sellers, setSellers] = useState<Seller[]>([]);
+    const [sellerToEdit, setSellerToEdit] = useState<Seller | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
@@ -41,9 +41,9 @@ export default function SellerPage() {
             const response = await api(`/cases/${caseId}`, {method: "GET"});
 
             const data = response.results?.data;
-            const buyerParties = data?.parties?.filter((p: any) => p.role === "SELLER") || [];
+            const sellerParties = data?.parties?.filter((p: any) => p.role === "SELLER") || [];
 
-            const formattedBuyers: Buyer[] = buyerParties.map((b: any) => ({
+            const formattedSeller: Seller[] = sellerParties.map((b: any) => ({
                 id: b.id,
                 name: b.members[0]?.name || null,
                 phone: b.members[0]?.phone || null,
@@ -55,7 +55,7 @@ export default function SellerPage() {
                 },
             }));
 
-            setBuyers(formattedBuyers);
+            setSellers(formattedSeller);
         } catch (err: any) {
             console.error("❌ Error fetching buyer data:", err);
             setError("Failed to load buyer data.");
@@ -64,8 +64,8 @@ export default function SellerPage() {
         }
     };
 
-    const handleEdit = (buyer: Buyer) => {
-        setSellerToEdit(buyer);
+    const handleEdit = (seller: Seller) => {
+        setSellerToEdit(seller);
     };
 
     const handleFormSuccess = () => {
@@ -130,22 +130,22 @@ export default function SellerPage() {
                                             </thead>
                                             <tbody
                                                 className="bg-white dark:bg-slate-800 divide-y divide-gray-100 dark:divide-gray-700">
-                                            {buyers.length > 0 ? (
-                                                buyers.map((buyer, index) => (
-                                                    <tr key={buyer.id}>
+                                            {sellers.length > 0 ? (
+                                                sellers.map((seller, index) => (
+                                                    <tr key={seller.id}>
                                                         <td className="px-6 py-4 text-sm text-gray-700 dark:text-gray-200">{index + 1}</td>
                                                         <td className="px-6 py-4 text-sm text-gray-700 dark:text-gray-200">
-                                                            {buyer.user.email || "—"}
+                                                            {seller?.user?.email || "—"}
                                                         </td>
                                                         <td className="px-6 py-4 text-sm text-gray-700 dark:text-gray-200">
-                                                            {buyer.name || "—"}
+                                                            {seller?.name || "—"}
                                                         </td>
                                                         <td className="px-6 py-4 text-sm text-gray-700 dark:text-gray-200">
-                                                            {buyer.phone || "—"}
+                                                            {seller.phone || "—"}
                                                         </td>
                                                         <td className="px-6 py-4 text-sm text-gray-700 dark:text-gray-200">
                                                             <button
-                                                                onClick={() => handleEdit(buyer)}
+                                                                onClick={() => handleEdit(seller)}
                                                                 className="text-blue-600 hover:underline"
                                                             >
                                                                 Edit

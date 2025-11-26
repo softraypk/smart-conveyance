@@ -3,6 +3,9 @@
 import {FormEvent, useState} from "react";
 import {api} from "@/lib/api";
 import {Header} from "@/components/Header";
+import toast from "react-hot-toast";
+import {router} from "next/client";
+import {useRouter} from "next/navigation";
 
 export default function ForgotPasswordPage() {
     const [email, setEmail] = useState("");
@@ -10,23 +13,24 @@ export default function ForgotPasswordPage() {
     const [message, setMessage] = useState("");
     const [error, setError] = useState("");
 
+    const router = useRouter();
+
     const handleSubmit = async (e: FormEvent) => {
         e.preventDefault();
         setLoading(true);
-        setError("");
-        setMessage("");
 
         try {
             const response = await api("/auth/password-reset/initiate", {
                 method: "POST",
-                body: JSON.stringify({email})
+                body: JSON.stringify({email}, null)
 
             });
 
             if (response?.ok) {
-                setMessage("We’ve sent a verification link to your email address. Please check your inbox to continue.");
+                toast.success(response.results?.message);
+                router.push("/");
             } else {
-                setError("Unable to process request. Please try again later.");
+                toast.error("Error: " + response.results?.message);
             }
         } catch (err: any) {
             setError(err.response?.data?.message || "Email not found or invalid request.");
@@ -67,9 +71,6 @@ export default function ForgotPasswordPage() {
                             </button>
                         </div>
                     </form>
-
-                    {message && <p className="mt-4 text-green-600 text-center">{message}</p>}
-                    {error && <p className="mt-4 text-red-600 text-center">{error}</p>}
                 </div>
             </main>
         </div>

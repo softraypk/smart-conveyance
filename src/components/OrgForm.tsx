@@ -1,6 +1,6 @@
 "use client"
 
-import {SyntheticEvent, useEffect, useState} from "react";
+import {FormEvent, SyntheticEvent, useEffect, useState} from "react";
 import {api} from "@/lib/api";
 import {useRouter} from "next/navigation";
 
@@ -47,7 +47,7 @@ export default function OrgForm() {
     }, []);
 
 
-    const handlerSaveForm = async (e: SyntheticEvent) => {
+    const handlerSaveForm = async (e: FormEvent) => {
         e.preventDefault();
         setLoading(true);
         setError("");

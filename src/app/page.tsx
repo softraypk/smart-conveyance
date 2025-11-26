@@ -1,10 +1,16 @@
+"use client"
+
 import {LoginForm} from "@/components/LoginForm";
 import {Header} from "@/components/Header";
+import PageLoader from "@/components/PageLoader";
+import {useState} from "react";
 
 export default function SessionsPage() {
+    const [isLoading, setIsLoading] = useState(false);
     return (
         <div className="flex flex-col min-h-screen">
             <Header/>
+            {isLoading && <PageLoader/>}
             <main className="flex flex-1 items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
                 <div className="w-full max-w-md space-y-8 bg-white dark:bg-background-dark/50 p-8 rounded-lg shadow-md">
                     <div>
@@ -14,7 +20,7 @@ export default function SessionsPage() {
                             Sign in to your account
                         </p>
                     </div>
-                    <LoginForm/>
+                    <LoginForm setIsLoading={setIsLoading}/>
                 </div>
             </main>
         </div>

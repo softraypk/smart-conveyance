@@ -7,6 +7,7 @@ const navItems = [
     {name: "Dashboard", href: "/dashboards"},
     {name: "Cases", href: "/cases"},
     {name: "Mortgage Applications", href: "/mortgages"},
+    {name: "Invoices", href: "/invoices"},
     {name: "Documents", href: "/documents"},
     {name: "Reports", href: "/reports"},
 ];

@@ -1,18 +1,15 @@
-/** @type {import('tailwindcss').Config} */
-module.exports = {
-    content: [
-        "./src/**/*.{js,ts,jsx,tsx}", // adjust if needed
-    ],
+export default {
+    content: ["./src/**/*.{js,ts,jsx,tsx}"],
     theme: {
         extend: {
             colors: {
                 primary: {
-                    DEFAULT: "#2563eb", // blue-600 (you can use your brand color)
-                    light: "#3b82f6",   // optional
-                    dark: "#1e40af",    // optional
+                    DEFAULT: "#2563eb",
+                    light: "#3b82f6",
+                    dark: "#1e40af",
                 },
             },
         },
     },
     plugins: [],
-}
+};

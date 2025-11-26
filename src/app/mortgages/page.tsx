@@ -1,10 +1,11 @@
-"use client"
+"use client";
 
 import Sidebar from "@/components/Sidebar";
 import {useRouter} from "next/navigation";
-import {useEffect, useState} from "react";
+import {FormEvent, useEffect, useState} from "react";
 import {api} from "@/lib/api";
 import toast from "react-hot-toast";
+import PageLoader from "@/components/PageLoader";
 
 interface User {
     name: string;
@@ -12,11 +13,35 @@ interface User {
     role?: string;
 }
 
+interface Bank {
+    id: string;
+    name: string;
+}
+
+interface Valuation {
+    id: string;
+    requestedBy: string;
+    status: string;
+    bankId: string;
+    bank: {
+        id: string;
+        name: string;
+    }
+}
+
 export default function MortgagesPage() {
     const router = useRouter();
     const [mortgages, setMortgages] = useState<any[]>([]);
     const [loading, setLoading] = useState(false);
+    const [isEditable, setIsEditable] = useState(false);
+    const [valuation, setValuation] = useState<Valuation[]>([]);
     const [user, setUser] = useState<User | null>(null);
+    const [bankId, setBankId] = useState("");
+    const [banks, setBanks] = useState<Bank[]>([]);
+    const [requestedBy, setRequestedBy] = useState("");
+    const [status, setStatus] = useState("PENDING");
+    const [caseId, setCaseId] = useState("");
+    const [showModal, setShowModal] = useState(false);
 
     useEffect(() => {
         const storedUser = localStorage.getItem("user");
@@ -52,6 +77,53 @@ export default function MortgagesPage() {
         setLoading(false);
     }, []);
 
+    const fetchValuation = async (caseId: string) => {
+        setLoading(true);
+        try {
+            const response = await api(`/cases/${caseId}/mortgage/valuation`, {
+                method: "GET",
+            })
+
+            if (response.ok) {
+                setIsEditable(true)
+                setBankId(response?.results?.data?.bankId)
+                setRequestedBy(response?.results?.data?.requestedBy);
+                setStatus(response?.results?.data?.status)
+            } else {
+                setIsEditable(false)
+                //toast.error("Error: " + response?.results?.message);
+            }
+        } catch (e) {
+            toast.error("Error:" + e)
+        } finally {
+            setLoading(false);
+        }
+    }
+
+    useEffect(() => {
+        if (!caseId) return;
+        fetchValuation(caseId);
+    }, [caseId])
+
+    const handleModelOpener = async (id: string) => {
+        setLoading(true);
+        if (!id) return;
+        setCaseId(id)
+        try {
+            const response = await api('/admins/banks', {
+                method: "GET",
+            });
+            if (response.ok) {
+                setBanks(response.results)
+            }
+        } catch (e) {
+            toast.error("Error:" + e)
+        }
+        setShowModal(true)
+        setLoading(false);
+    }
+
+
     const statusColor = (status: string | undefined) => {
         switch (status) {
             case "PENDING":
@@ -65,19 +137,46 @@ export default function MortgagesPage() {
         }
     }
 
-    if (loading) {
-        return (
-            <div className="flex flex-col min-h-screen">
-                loading...
-            </div>
-        )
+    const handlerSubmit = async (e: FormEvent) => {
+        e.preventDefault();
+        setLoading(true);
+        const payload = {
+            bankId,
+            requestedBy,
+            status
+        }
+        try {
+            const response = await api(`/cases/${caseId}/mortgage/valuation`, {
+                method: isEditable ? "PATCH" : "POST",
+                body: JSON.stringify(payload)
+            })
+
+            if (response.ok) {
+                toast.success("Successfully updated mortgage");
+            } else {
+                toast.error("Error: " + response.results?.message);
+            }
+
+        } catch (e) {
+            toast.error("Error:" + e);
+        }
+
+        setLoading(false);
     }
 
+    if (loading || !mortgages) {
+        return (
+            <div className="flex justify-center items-center h-screen text-xl">
+                <PageLoader/>
+            </div>
+        );
+    }
 
     return (
         <div className="flex flex-col min-h-screen">
             <Sidebar/>
             <main className="flex-1 px-4 py-8 sm:px-6 lg:px-8">
+                {loading && <PageLoader/>}
                 <div className="mx-auto max-w-7xl">
                     {(user?.role === "BROKER") && (
                         <div className="mb-8 flex flex-wrap items-center justify-between gap-4">
@@ -156,6 +255,13 @@ export default function MortgagesPage() {
                                         </td>
 
                                         <td className="whitespace-nowrap px-6 py-4 text-sm font-medium">
+                                            <button
+                                                onClick={() => {
+                                                    handleModelOpener(m.id)
+                                                }}
+                                                className="text-primary hover:underline">Valuation
+                                            </button>
+                                            <span className="text-black/30 dark:text-white/30 m-3">|</span>
                                             <a className="text-primary hover:underline"
                                                href={`/mortgages/${m.id}/show`}>View</a>
                                             <span className="text-black/30 dark:text-white/30 m-3">|</span>
@@ -170,6 +276,81 @@ export default function MortgagesPage() {
 
                     </div>
                 </div>
+                {showModal && (
+                    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm">
+                        <div
+                            className="bg-white dark:bg-background-dark/70 rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700 w-full max-w-2xl mx-4 animate-fadeIn">
+                            {loading && <PageLoader/>}
+                            <div className="p-6">
+                                <h2 className="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-4">
+                                    Proceed to Valuation
+                                </h2>
+
+                                <form className="p-4 space-y-6" onSubmit={handlerSubmit}>
+                                    {/* Bank Select */}
+                                    <label className="flex flex-col">
+                                        <p className="form-label dark:text-gray-300">Bank*</p>
+                                        <select
+                                            value={bankId}
+                                            onChange={(e) => setBankId(e.target.value)}
+                                            className="form-input dark:bg-background-dark dark:border-gray-600 dark:text-white">
+                                            {banks.map((b: Bank) => (
+                                                <option key={b.id} value={b.id}>{b.name}</option>
+                                            ))}
+                                        </select>
+                                    </label>
+
+                                    {/* Date Field */}
+                                    <label className="flex flex-col">
+                                        <p className="form-label dark:text-gray-300">Date*</p>
+                                        <input
+                                            value={requestedBy ? requestedBy.split("T")[0] : ""}
+                                            onChange={(e) => {
+                                                setRequestedBy(new Date(e.target.value).toISOString())
+                                            }}
+                                            className="form-input dark:bg-background-dark dark:border-gray-600 dark:text-white"
+                                            type="date"
+                                        />
+                                    </label>
+
+                                    {/* Status Select */}
+                                    <label className="flex flex-col">
+                                        <p className="form-label dark:text-gray-300">Status*</p>
+                                        <select
+                                            value={status}
+                                            onChange={(e) => {
+                                                setStatus(e.target.value)
+                                            }}
+                                            className="form-input dark:bg-background-dark dark:border-gray-600 dark:text-white">
+                                            <option value="PENDING">PENDING</option>
+                                            <option value="COMPLETED">COMPLETED</option>
+                                        </select>
+                                    </label>
+
+                                    {/* Buttons */}
+                                    <div className="flex justify-between items-center pt-6">
+                                        <button
+                                            type="button"
+                                            onClick={() => {
+                                                setShowModal(false)
+                                            }}
+                                            className="px-6 py-3 rounded-lg text-[#4c809a] dark:text-gray-300 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 font-bold text-sm"
+                                        >
+                                            Back
+                                        </button>
+
+                                        <button
+                                            type="submit"
+                                            className="px-6 py-3 rounded-lg text-white bg-primary hover:bg-primary/90 font-bold text-sm"
+                                        >
+                                            Proceed to Valuation
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                )}
             </main>
         </div>
     )

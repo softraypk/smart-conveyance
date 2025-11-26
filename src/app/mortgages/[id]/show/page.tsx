@@ -19,7 +19,7 @@ export default function ShowMortgagePage() {
     const router = useRouter();
 
     useEffect(() => {
-        const fetchMortage = async () => {
+        const fetchMortgage = async () => {
             try {
                 const respnse = await api(`/cases/${id}/mortgage`);
                 if (respnse.ok) {
@@ -31,7 +31,7 @@ export default function ShowMortgagePage() {
                 console.error(e);
             }
         }
-        fetchMortage();
+        fetchMortgage();
     }, [id])
 
     return (
@@ -55,7 +55,7 @@ export default function ShowMortgagePage() {
                             {[
                                 {key: "summary", label: "Summary"},
                                 {key: "valuation", label: "Valuation"},
-                                {key: "offers", label: "Offers"},
+                                //{key: "offers", label: "Offers"},
                             ].map((tab) => (
                                 <button
                                     key={tab.key}
@@ -78,7 +78,7 @@ export default function ShowMortgagePage() {
                             <SummaryTab mortgage={mortgage}/>
                         )}
                         {activeTab === "valuation" && (
-                            <ValuationTab mortgage={mortgage}/>
+                            <ValuationTab caseId={mortgage?.caseId}/>
                         )}
                         {activeTab === "offers" && (
                             <OffersTab mortgage={mortgage}/>

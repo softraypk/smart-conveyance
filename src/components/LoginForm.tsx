@@ -5,20 +5,14 @@ import {useRouter} from "next/navigation";
 import {api} from "@/lib/api";
 import toast from "react-hot-toast";
 
-export function LoginForm() {
+export function LoginForm({setIsLoading}: any) {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-    const [error, setError] = useState("");
-    const [loading, setLoading] = useState(true);
-    const [message, setMessage] = useState("");
 
     const router = useRouter();
     const handlerLoginForm = async (e: SyntheticEvent) => {
         e.preventDefault();
-        setLoading(true);
-        setError("");
-        setMessage("");
-
+        setIsLoading(true);
         const payload = {
             email: email,
             password: password,
@@ -38,6 +32,7 @@ export function LoginForm() {
 
             // If the response includes the token and message
             if (response.ok) {
+                document.cookie = `token=${response.results.authToken}; path=/; max-age=86400;`; // 1 day
                 localStorage.setItem("authToken", response.results.authToken);
                 localStorage.setItem("user", JSON.stringify(response.results.user));
 
@@ -48,9 +43,8 @@ export function LoginForm() {
             }
         } catch (err) {
             console.error("Login error:", err);
-            setError("Login failed. Please try again.");
         } finally {
-            setLoading(false);
+            setIsLoading(false);
         }
     };
 
@@ -77,7 +71,7 @@ export function LoginForm() {
             </div>
             <div className="flex items-center justify-end">
                 <div className="text-sm">
-                    <button onClick={() => router.push('/users/forgetpassword')}
+                    <button type="button" onClick={() => router.push('/users/forget_password')}
                             className="font-medium text-primary hover:text-primary/80">Forgot your password?
                     </button>
                 </div>

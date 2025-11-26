@@ -161,3 +161,9 @@ input:checked+.slider:before {
     transform: translateX(20px);
 }
 
+.material-icons-outlined {
+    font-size: 20px;
+    line-height: 1;
+}
+
+

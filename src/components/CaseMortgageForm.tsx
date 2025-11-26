@@ -123,7 +123,7 @@ export default function CaseMortgageForm({caseId, mortgageToEdit, onSuccess}: Ca
     };
 
     return (
-        <form onSubmit={handleSaveForm} className="bg-white dark:bg-slate-800 rounded-lg p-8 mt-6">
+        <form onSubmit={handleSaveForm} className="bg-white dark:bg-slate-800 rounded-lg p-4 mt-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
                 {/* Email */}
                 <div>
