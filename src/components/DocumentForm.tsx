@@ -76,9 +76,9 @@ export default function DocumentForm({id, onUploadSuccess}: DocumentFormProps) {
                         <option value="FORM_F">Form F</option>
                         <option value="NOC">NOC</option>
                         <option value="BANK_CLEARENCE_LETTER">Bank Clearance Letter</option>
-                        <option value="VALUATION">Valuation</option>
-                        <option value="FOL">Fol</option>
-                        <option value="OTHER">Other</option>
+                        {/*<option value="VALUATION">Valuation</option>*/}
+                        {/*<option value="FOL">Fol</option>*/}
+                        {/*<option value="OTHER">Other</option>*/}
                     </select>
                 </div>
 

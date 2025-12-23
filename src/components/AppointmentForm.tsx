@@ -2,6 +2,7 @@
 import {FormEvent, useEffect, useState} from "react";
 import {api} from "@/lib/api";
 import toast from "react-hot-toast";
+import {useRouter} from "next/navigation";
 
 type Mode = "new" | "edit";
 
@@ -20,6 +21,7 @@ export default function AppointmentForm({mode = "new", bookingId = null, setLoad
     const [options, setOptions] = useState([]);
     const [cases, setCases] = useState([]);
 
+    const router = useRouter();
     // ----------------------------
     // Load Cases + Trustee Offices
     // ----------------------------
@@ -27,7 +29,7 @@ export default function AppointmentForm({mode = "new", bookingId = null, setLoad
         const loadData = async () => {
             try {
                 const [caseRes, officesRes] = await Promise.all([
-                    api("/cases?statusFilter=COMPLIANCE_READY"),
+                    api(`/cases?statusFilter=${mode === "edit" ? "TRUSTEE_BOOKED" : "COMPLIANCE_READY"}`),
                     api("/trusteeOffice")
                 ]);
 
@@ -55,14 +57,14 @@ export default function AppointmentForm({mode = "new", bookingId = null, setLoad
     // ----------------------------
     const loadAppointmentData = async () => {
         try {
-            const res = await api(`/appointments/${bookingId}`, {method: "GET"});
+            const res = await api(`/bookings/${bookingId}`, {method: "GET"});
 
             if (res.ok) {
                 const a = res.results.data;
                 setCaseId(a.caseId || "");
-                setTrusteeOfficeId(a.trusteeOfficeId || "");
-                setStart(a.start?.slice(0, 10) || "");
-                setEnd(a.end?.slice(0, 10) || "");
+                setTrusteeOfficeId(a.slot?.officeId || "");
+                setStart(a.slot?.start?.slice(0, 10) || "");
+                setEnd(a.slot?.end?.slice(0, 10) || "");
                 setRepName(a.repName || "");
             }
         } catch (e) {
@@ -90,13 +92,13 @@ export default function AppointmentForm({mode = "new", bookingId = null, setLoad
 
             if (mode === "edit") {
                 // Update
-                response = await api(`/booking/${bookingId}`, {
+                response = await api(`/bookings/${bookingId}`, {
                     method: "PUT",
                     body: JSON.stringify(payload),
                 });
             } else {
                 // New
-                response = await api(`/booking`, {
+                response = await api(`/bookings`, {
                     method: "POST",
                     body: JSON.stringify(payload),
                 });
@@ -104,6 +106,7 @@ export default function AppointmentForm({mode = "new", bookingId = null, setLoad
 
             if (response.ok) {
                 toast.success(response.results.message);
+                router.push("/appointments");
             } else {
                 toast.error(response.results.message);
             }

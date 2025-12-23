@@ -6,6 +6,9 @@ import SCAdmin from "@/components/ScAdmin";
 import MorgAdmin from "@/components/MorgAdmin";
 import TrustAdmin from "@/components/TrustAdmin";
 import PageLoader from "@/components/PageLoader";
+import Sidebar from "@/components/Sidebar";
+import toast from "react-hot-toast";
+import {api} from "@/lib/api";
 
 interface User {
     name: string;
@@ -15,6 +18,8 @@ interface User {
 
 export default function DashboardsPage() {
     const [user, setUser] = useState<User | null>(null);
+    const [loading, setLoading] = useState<boolean>(false);
+    const [exceptions, setExceptions] = useState<any[]>([]);
 
     useEffect(() => {
         const storedUser = localStorage.getItem("user");
@@ -28,7 +33,29 @@ export default function DashboardsPage() {
         }
     }, []);
 
-    if (!user) {
+    useEffect(() => {
+        const listCaseException = async () => {
+            try {
+                setLoading(true); // optional, only if you want parent loader
+
+                const response = await api("/exceptions", {method: "GET"});
+
+                if (response?.ok) {
+                    setExceptions(response.results?.data?.exceptions || []);
+                } else {
+                    toast.error("Error: " + (response?.results?.message || "Unknown error"));
+                }
+            } catch (e: any) {
+                toast.error("Error: " + (e?.message || e));
+            } finally {
+                setLoading(false); // hide parent loader
+            }
+        };
+
+        listCaseException();
+    }, []); // empty dependency to run only once on mount
+
+    if (loading) {
         return (
             <div className="flex items-center justify-center h-screen text-gray-500">
                 <PageLoader/>
@@ -36,13 +63,15 @@ export default function DashboardsPage() {
         );
     }
 
-    if (user?.role === "ORG_ADMIN") {
-        return <OrgAdmin/>;
-    } else if (user?.role === "MORTGAGE_BROKER" || user?.role === "BROKER") {
-        return <MorgAdmin/>;
-    } else if (user?.role === "TRUSTEE") {
-        return <TrustAdmin/>;
-    } else {
-        return <SCAdmin/>;
+    switch (user?.role) {
+        case "ORG_ADMIN":
+            return <OrgAdmin exceptions={exceptions}/>;
+        case "MORTGAGE_BROKER":
+        case "BROKER":
+            return <MorgAdmin setLoading={setLoading}/>;
+        case "TRUSTEE":
+            return <TrustAdmin setLoading={setLoading}/>;
+        default:
+            return <SCAdmin setLoading={setLoading}/>;
     }
 }

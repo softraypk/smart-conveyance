@@ -12,6 +12,7 @@ interface Trustee {
     id?: string | number;
     name: string;
     address: string;
+    mapLink: string;
 }
 
 export default function EditBankPage() {

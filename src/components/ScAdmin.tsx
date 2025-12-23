@@ -1,6 +1,10 @@
 import Sidebar from "@/components/Sidebar";
 
-export default function SCAdmin() {
+interface AppointmentFormProps {
+    setLoading: React.Dispatch<React.SetStateAction<boolean>>;
+}
+
+export default function SCAdmin({setLoading}: AppointmentFormProps) {
     return (
         <div className="flex h-screen">
             <Sidebar/>

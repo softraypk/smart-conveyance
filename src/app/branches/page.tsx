@@ -6,6 +6,7 @@ import {useEffect, useState} from "react";
 import {api} from "@/lib/api";
 import toast from "react-hot-toast";
 import dayjs from "dayjs";
+import PageLoader from "@/components/PageLoader";
 
 interface User {
     name: string;
@@ -73,7 +74,7 @@ export default function BranchesPage() {
     if (loading) {
         return (
             <div className="flex min-h-screen items-center justify-center text-gray-500">
-                Loading branches...
+                <PageLoader/>
             </div>
         );
     }

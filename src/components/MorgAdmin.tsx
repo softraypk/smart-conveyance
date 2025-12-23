@@ -1,6 +1,10 @@
 import Sidebar from "@/components/Sidebar";
 
-export default function MorgAdmin() {
+interface AppointmentFormProps {
+    setLoading: React.Dispatch<React.SetStateAction<boolean>>;
+}
+
+export default function MorgAdmin({setLoading}: AppointmentFormProps) {
     return (
         <div className="relative flex h-auto min-h-screen w-full flex-col">
             <Sidebar/>

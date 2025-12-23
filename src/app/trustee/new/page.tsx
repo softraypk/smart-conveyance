@@ -11,6 +11,7 @@ import TrusteeOfficeForm from "@/components/TrusteeOfficeForm";
 interface Trustee {
     name: string;
     address: string;
+    mapLink: string;
 }
 
 export default function NewBanksPage() {

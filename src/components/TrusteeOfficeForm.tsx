@@ -3,8 +3,10 @@
 import {useState, useEffect} from "react";
 
 interface Trustee {
+    id?: string | number;
     name: string;
     address: string;
+    mapLink: string;
 }
 
 interface Props {
@@ -17,7 +19,8 @@ interface Props {
 export default function TrusteeOfficeForm({initialData, onSubmit, loading, isEditing}: Props) {
     const [formData, setFormData] = useState<Trustee>({
         name: "",
-        address: ""
+        address: "",
+        mapLink: "",
     });
 
     useEffect(() => {
@@ -62,20 +65,31 @@ export default function TrusteeOfficeForm({initialData, onSubmit, loading, isEdi
                 </label>
             </div>
 
+            <div className="md:col-span-2">
+                <label className="flex flex-col w-full">
+                    <p className="text-gray-800 dark:text-gray-200 text-sm font-medium pb-2">Map link</p>
+                    <input
+                        name="mapLink"
+                        value={formData.mapLink}
+                        onChange={handleChange}
+                        className="form-input flex w-full rounded-lg border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 h-12 px-4 text-sm"
+                        placeholder="Enter the full bank name"
+                    />
+                </label>
+            </div>
+
             <div
                 className="md:col-span-2 flex justify-end gap-4 pt-4 mt-4 border-t border-gray-200 dark:border-gray-800">
                 <button
                     type="button"
                     onClick={() => history.back()}
-                    className="h-11 px-6 rounded-lg bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-200 font-bold"
-                >
+                    className="h-11 px-6 rounded-lg bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-200 font-bold">
                     Cancel
                 </button>
                 <button
                     type="submit"
                     disabled={loading}
-                    className="h-11 px-6 rounded-lg bg-primary text-white font-bold hover:bg-primary/90 transition-colors"
-                >
+                    className="h-11 px-6 rounded-lg bg-primary text-white font-bold hover:bg-primary/90 transition-colors">
                     {loading ? "Saving..." : isEditing ? "Update Office" : "Add Office"}
                 </button>
             </div>

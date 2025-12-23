@@ -2,13 +2,14 @@
 
 import Sidebar from "@/components/Sidebar";
 import {useRouter} from "next/navigation";
-import {useEffect, useState} from "react";
+import {FormEvent, useEffect, useState} from "react";
 import {api} from "@/lib/api";
 import toast from "react-hot-toast";
 import dayjs from "dayjs";
 import CaseMortgageForm from "@/components/CaseMortgageForm";
 import PageLoader from "@/components/PageLoader";
 import {TrustHeader} from "@/components/TrustHeader";
+import ExceptionModal from "@/components/ExceptionModel";
 
 interface User {
     name: string;
@@ -48,12 +49,14 @@ export default function CasesPage() {
     const [showModal, setShowModal] = useState(false);
     const [caseId, setCaseId] = useState<string | null>(null);
     const [mortgageToEdit, setMortgageToEdit] = useState<Mortgage | null>(null);
-    const [singleCase, setSingleCase] = useState<SingleCase | null>(null);
     const [mortgages, setMortgages] = useState<any>(null);
     const router = useRouter();
     const [user, setUser] = useState<User | null>(null);
     const [cases, setCases] = useState<any[]>([]);
     const [loading, setLoading] = useState(false);
+    const [open, setOpen] = useState(false);
+    const [file, setFile] = useState<any>(null);
+    const [openException, setOpenException] = useState<boolean>(false);
 
     useEffect(() => {
         const storedUser = localStorage.getItem("user");
@@ -69,6 +72,7 @@ export default function CasesPage() {
 
     useEffect(() => {
         const listCases = async () => {
+            setLoading(true);
             try {
                 const response = await api("/cases", {method: "GET"});
 
@@ -128,6 +132,55 @@ export default function CasesPage() {
         setCaseId(singleCase.id);
         setShowModal(true);
     }
+
+    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (file) {
+            setFile(file);
+        }
+    };
+
+    const handleOpenModel = (caseId: string) => {
+        setOpen(true);
+        setCaseId(caseId);
+    }
+
+    const uploadDocument = async (e: FormEvent) => {
+        e.preventDefault();
+
+        if (!file) {
+            alert("Please select a file first");
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append("document", file);
+
+        try {
+            const res = await api(`/cases/${caseId}/documents/DEED`, {
+                method: "PUT",
+                body: formData,
+            });
+
+            if (!res.ok) {
+                toast.error("Error while uploading case");
+                throw new Error("Upload failed");
+            }
+
+
+            toast.success("Success: " + res.results.message)
+
+        } catch (err) {
+            console.error(err);
+            toast.error("Error: " + err);
+        }
+    };
+
+    const handleException = (caseId: string) => {
+        setOpenException(true);
+        setCaseId(caseId);
+    }
+
 
     if (loading || !cases) {
         return (
@@ -222,57 +275,79 @@ export default function CasesPage() {
                                     <tbody>
                                     {cases.length === 0 ? (
                                         <tr className="border-b border-subtle-light dark:border-subtle-dark hover:bg-background-light dark:hover:bg-background-dark/50 transition-colors">
-                                            <td className="px-4 py-4 font-medium" colSpan={6}>No Case Found</td>
+                                            <td className="px-4 py-4 font-medium" colSpan={6}>
+                                                No Case Found
+                                            </td>
                                         </tr>
                                     ) : (
-                                        cases.map((singleCase: SingleCase) => (
-                                            <tr
-                                                key={singleCase.id}
-                                                className="border-b border-subtle-light dark:border-subtle-dark hover:bg-background-light dark:hover:bg-background-dark/50 transition-colors"
-                                            >
-                                                <td className="px-4 py-4 font-medium">{singleCase.id}</td>
-                                                <td className="px-4 py-4 text-muted-light dark:text-muted-dark">
-                                                    {singleCase?.property?.community || "-"}
-                                                </td>
-                                                <td className="px-4 py-4 text-muted-light dark:text-muted-dark">
-                                                    {singleCase.parties?.role || "-"}
-                                                </td>
-                                                <td className="px-4 py-4">
-                                                    <span
-                                                        className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary/20 text-primary">
-                                                      {singleCase.status || "In Progress"}
-                                                    </span>
-                                                </td>
-                                                <td className="px-4 py-4 text-muted-light dark:text-muted-dark">
-                                                    {dayjs(singleCase.createdAt).format("MMM DD, YYYY hh:mm A") || "-"}
-                                                </td>
-                                                <td className="px-4 py-4">
-                                                    <button
-                                                        onClick={() => handleInvite(singleCase)}
-                                                        className="font-semibold text-primary hover:underline mr-3">
-                                                        Invite Broker
-                                                    </button>
+                                        cases.map((singleCase: SingleCase) => {
+                                            const buyerParty = singleCase.parties?.find((p: any) => p.role === "BUYER");
+                                            const buyer = buyerParty?.members?.[0] || null;
 
-                                                    <button
-                                                        onClick={() => router.push(`/cases/${singleCase.id}`)}
-                                                        className="font-semibold text-primary hover:underline mr-3"
-                                                    >
-                                                        Edit
-                                                    </button>
-                                                    <button
-                                                        onClick={() => router.push(`/cases/${singleCase.id}`)}
-                                                        className="font-semibold text-primary hover:underline"
-                                                    >
-                                                        View
-                                                    </button>
-                                                </td>
-                                            </tr>
-                                        )))}
+                                            const sellerParty = singleCase.parties?.find((p: any) => p.role === "SELLER");
+                                            const seller = sellerParty?.members?.[0] || null;
+
+                                            return (
+                                                <tr
+                                                    key={singleCase.id}
+                                                    className="border-b border-subtle-light dark:border-subtle-dark hover:bg-background-light dark:hover:bg-background-dark/50 transition-colors"
+                                                >
+                                                    <td className="px-4 py-4 font-medium">{singleCase.id}</td>
+                                                    <td className="px-4 py-4 text-muted-light dark:text-muted-dark">
+                                                        {singleCase?.property?.community || "-"}
+                                                    </td>
+
+                                                    <td className="px-4 py-4 text-muted-light dark:text-muted-dark">
+                                                        {buyer?.name || "-"}/{seller?.name || "-"}
+                                                    </td>
+
+                                                    <td className="px-4 py-4">
+                                                        <span
+                                                            className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary/20 text-primary">
+                                                            {singleCase.status || "In Progress"}
+                                                        </span>
+                                                    </td>
+
+                                                    <td className="px-4 py-4 text-muted-light dark:text-muted-dark">
+                                                        {dayjs(singleCase.createdAt).format("MMM DD, YYYY hh:mm A")}
+                                                    </td>
+
+                                                    <td className="px-4 py-4">
+                                                        <button onClick={() => handleException(singleCase.id)}
+                                                                className="font-semibold text-primary hover:underline mr-3">
+                                                            <span className="material-symbols-outlined">warning</span>
+                                                        </button>
+
+                                                        <button onClick={() => handleInvite(singleCase)}
+                                                                className="font-semibold text-primary hover:underline mr-3">
+                                                            <span
+                                                                className="material-symbols-outlined">person_add</span>
+                                                        </button>
+
+                                                        <button onClick={() => router.push(`/cases/${singleCase.id}`)}
+                                                                className="font-semibold text-primary hover:underline mr-3">
+                                                            <span className="material-symbols-outlined">edit</span>
+                                                        </button>
+
+                                                        <button
+                                                            onClick={() => router.push(`/cases/${singleCase.id}/show`)}
+                                                            className="font-semibold text-primary hover:underline">
+                                                            <span
+                                                                className="material-symbols-outlined">visibility</span>
+                                                        </button>
+                                                    </td>
+                                                </tr>
+                                            );
+                                        })
+                                    )}
                                     </tbody>
                                 </table>
                             </div>
                         </div>
                     </div>
+                    {/* Modal */}
+                    <ExceptionModal caseId={caseId} open={openException} onClose={() => setOpenException(false)}/>
+
                     {showModal && (
                         <div
                             className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm"
@@ -599,18 +674,14 @@ export default function CasesPage() {
         )
     } else if (user?.role === "TRUSTEE") {
         return (
-
-            <div className="flex h-screen w-full">
+            <div className="flex flex-col min-h-screen">
+                <TrustHeader/>
                 {/* Sidebar + Main wrapper */}
                 <div className="flex flex-row w-full">
-                    {/* Sidebar */}
-                    <Sidebar/>
-
                     {/* Main Content */}
                     <main className="flex-1 flex flex-col">
                         {/* Main Content */}
-                        <TrustHeader/>
-                        <div className="flex-1 p-8">
+                        <div className="flex-1 container mx-auto px-4 sm:px-6 lg:px-8 py-8">
                             {/* Header */}
                             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
                                 <h2 className="text-3xl font-bold">Cases</h2>
@@ -713,14 +784,172 @@ export default function CasesPage() {
                                                         {dayjs(singlecase.createdAt).format("MMM DD, YYYY hh:mm A") || "-"}
                                                     </td>
                                                     <td className="px-4 py-4">
-                                                        <button className="font-semibold text-primary hover:underline">
-                                                            View
+                                                        <button
+                                                            onClick={() => handleOpenModel(singlecase.id)}
+                                                            className="px-4 py-2 bg-primary text-white rounded-lg flex items-center gap-2"
+                                                        >
+                                                            <span
+                                                                className="material-symbols-outlined">file_upload</span>
+                                                            Upload Final Deed
                                                         </button>
                                                     </td>
                                                 </tr>
                                             )))}
                                         </tbody>
                                     </table>
+
+                                    {/* MODAL BACKDROP */}
+                                    {open && (
+                                        <div
+                                            className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50">
+
+                                            {/* MODAL CARD */}
+                                            <form onSubmit={uploadDocument}
+                                                  className="bg-white dark:bg-background-dark p-8 rounded-xl shadow-xl w-full max-w-lg space-y-8 relative">
+
+                                                {/* CLOSE BUTTON */}
+                                                <button
+                                                    onClick={() => setOpen(false)}
+                                                    className="absolute top-3 right-3 text-gray-600 dark:text-gray-300 hover:text-primary"
+                                                >
+                                                    <span className="material-symbols-outlined">close</span>
+                                                </button>
+
+                                                {/* ---------------- YOUR CONTENT BELOW ---------------- */}
+
+                                                <div>
+                                                    <h2 className="text-3xl font-extrabold text-center text-gray-900 dark:text-white">
+                                                        Final Deed &amp; Supporting Pack
+                                                    </h2>
+                                                    <p className="mt-2 text-center text-sm text-gray-600 dark:text-gray-400">
+                                                        Upload the final documents to complete the case.
+                                                    </p>
+                                                </div>
+
+                                                <div
+                                                    className="bg-white dark:bg-background-dark/50 p-8 rounded-lg shadow-md space-y-6">
+
+                                                    {/* FILE UPLOAD -------------------------- */}
+                                                    <div>
+                                                        <label
+                                                            htmlFor="file-upload"
+                                                            className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+                                                        >
+                                                            Final Deed Pack (PDF/ZIP)
+                                                        </label>
+
+                                                        <label
+                                                            htmlFor="file-upload"
+                                                            className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300
+                                    dark:border-gray-600 border-dashed rounded-md cursor-pointer
+                                    hover:border-primary/70 dark:hover:border-primary/50 transition-colors"
+                                                        >
+                                                            <div className="space-y-1 text-center">
+                                        <span
+                                            className="material-symbols-outlined text-4xl text-gray-400 dark:text-gray-500">
+                                            cloud_upload
+                                        </span>
+                                                                <div
+                                                                    className="flex text-sm text-gray-600 dark:text-gray-400">
+                                                                    <p className="pl-1">
+                                                                        Drag and drop or{" "}
+                                                                        <span className="text-primary font-semibold">click to upload</span>
+                                                                    </p>
+                                                                </div>
+                                                                <p className="text-xs text-gray-500 dark:text-gray-400">
+                                                                    PDF, ZIP up to 50MB
+                                                                </p>
+                                                                {/* Show attached file */}
+                                                                {file && (
+                                                                    <div
+                                                                        className="text-sm text-green-600 flex items-center gap-2">
+                                                                        <span
+                                                                            className="material-symbols-outlined text-base">attach_file</span>
+                                                                        {file?.name}
+                                                                    </div>
+                                                                )}
+                                                            </div>
+                                                        </label>
+
+                                                        <input
+                                                            onChange={handleFileChange}
+                                                            id="file-upload" name="file-upload" type="file"
+                                                            className="sr-only"/>
+                                                    </div>
+
+                                                    {/* DEED ID -------------------------- */}
+                                                    <div>
+                                                        <label
+                                                            htmlFor="deed-id"
+                                                            className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+                                                        >
+                                                            Deed ID
+                                                        </label>
+
+                                                        <div className="mt-1 relative">
+                                    <span
+                                        className="material-symbols-outlined absolute inset-y-0 left-0 pl-3 flex items-center text-gray-400 dark:text-gray-500">
+                                        badge
+                                    </span>
+
+                                                            <input
+                                                                id="deed-id"
+                                                                name="deed-id"
+                                                                type="text"
+                                                                placeholder="Enter Deed ID"
+                                                                className="form-input block w-full pl-10 pr-3 py-3
+                                        bg-background-light dark:bg-background-dark
+                                        border border-gray-300 dark:border-gray-700 rounded-md
+                                        placeholder-gray-500 dark:placeholder-gray-400
+                                        focus:outline-none focus:ring-primary focus:border-primary sm:text-sm"
+                                                            />
+                                                        </div>
+                                                    </div>
+
+                                                    {/* DATE ISSUED -------------------------- */}
+                                                    <div>
+                                                        <label
+                                                            htmlFor="date-issued"
+                                                            className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+                                                        >
+                                                            Date Issued
+                                                        </label>
+
+                                                        <div className="mt-1 relative">
+                                    <span
+                                        className="material-symbols-outlined absolute inset-y-0 left-0 pl-3 flex items-center text-gray-400 dark:text-gray-500">
+                                        calendar_today
+                                    </span>
+
+                                                            <input
+                                                                id="date-issued"
+                                                                name="date-issued"
+                                                                type="date"
+                                                                placeholder="Select Date"
+                                                                className="form-input block w-full pl-10 pr-3 py-3
+                                        bg-background-light dark:bg-background-dark
+                                        border border-gray-300 dark:border-gray-700 rounded-md
+                                        placeholder-gray-500 dark:placeholder-gray-400
+                                        focus:outline-none focus:ring-primary focus:border-primary sm:text-sm"
+                                                            />
+                                                        </div>
+                                                    </div>
+
+                                                    {/* SAVE BUTTON -------------------------- */}
+                                                    <button
+                                                        type="submit"
+                                                        className="w-full flex justify-center py-3 px-4 rounded-md shadow-sm
+                                text-sm font-medium text-white bg-primary hover:bg-primary/90
+                                focus:outline-none focus:ring-2 focus:ring-offset-2
+                                focus:ring-primary transition-colors"
+                                                    >
+                                                        Save
+                                                    </button>
+
+                                                </div>
+                                            </form>
+                                        </div>
+                                    )}
                                 </div>
                             </div>
                         </div>

@@ -8,6 +8,7 @@ import {useRouter} from "next/navigation";
 import {motion, AnimatePresence} from "framer-motion";
 import toast from "react-hot-toast";
 import {TrustHeader} from "@/components/TrustHeader";
+import PageLoader from "@/components/PageLoader";
 
 interface User {
     id: string;
@@ -173,7 +174,7 @@ export default function UserProfile({params}: { params: Promise<{ id: string }> 
     if (!user) {
         return (
             <div className="flex justify-center items-center h-screen text-gray-500 dark:text-gray-300">
-                Loading user...
+                <PageLoader/>
             </div>
         );
     }
@@ -181,7 +182,6 @@ export default function UserProfile({params}: { params: Promise<{ id: string }> 
     if (user.role === "TRUSTEE") {
         return (
             <div className="flex h-screen w-full">
-                <Sidebar/>
                 <main className="flex-1 flex flex-col">
                     <TrustHeader/>
                     <div className="flex-1 p-8">

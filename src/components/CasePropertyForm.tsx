@@ -30,6 +30,7 @@ export default function CasePropertyForm() {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
     const [propertyId, setPropertyId] = useState<string | null>(null);
+    const [status, setStatus] = useState("DECLARED");
 
     const emirates = [
         {value: "ABU_DHABI", label: "Abu Dhabi"},
@@ -146,15 +147,15 @@ export default function CasePropertyForm() {
                 mortgageStartDate: toISO(mortgageStartDate),
                 arrearsAmount,
                 earlySettlementRule,
-                notes
+                notes,
+                status,
             } : {})
         };
 
+
         try {
             const method = propertyId ? "PATCH" : "POST";
-            const url = propertyId
-                ? `/cases/${id}/properties/${propertyId}`
-                : `/cases/${id}/properties`;
+            const url = propertyId ? `/cases/${id}/properties/${propertyId}` : `/cases/${id}/properties`;
 
             const response = await api(url, {
                 method,
@@ -377,6 +378,20 @@ export default function CasePropertyForm() {
                             onChange={(e) => setArrearsAmount(Number(e.target.value))}
                             className="form-input dark:bg-background-dark dark:border-gray-600 dark:text-white"
                         />
+                    </label>
+
+                    <label className="flex flex-col">
+                        <p className="form-label dark:text-gray-300">Status*</p>
+                        <select
+                            value={status}
+                            onChange={(e) => setStatus(e.target.value)}
+                            className="form-input dark:bg-background-dark dark:border-gray-600 dark:text-white"
+                        >
+                            <option value="DECLARED">DECLARED</option>
+                            <option value="CLEARANCE_REQUESTED">CLEARANCE_REQUESTED</option>
+                            <option value="CLEARANCE_ISSUED">CLEARANCE_ISSUED</option>
+                            <option value="RELEASED">RELEASED</option>
+                        </select>
                     </label>
 
                     <label className="flex flex-col md:col-span-2">

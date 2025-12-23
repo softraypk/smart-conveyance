@@ -2,7 +2,7 @@
 
 import Sidebar from "@/components/Sidebar";
 import {useRouter} from "next/navigation";
-import {FormEvent, useEffect, useState} from "react";
+import {ChangeEvent, FormEvent, useEffect, useState} from "react";
 import {api} from "@/lib/api";
 import toast from "react-hot-toast";
 import PageLoader from "@/components/PageLoader";
@@ -18,23 +18,12 @@ interface Bank {
     name: string;
 }
 
-interface Valuation {
-    id: string;
-    requestedBy: string;
-    status: string;
-    bankId: string;
-    bank: {
-        id: string;
-        name: string;
-    }
-}
-
 export default function MortgagesPage() {
     const router = useRouter();
     const [mortgages, setMortgages] = useState<any[]>([]);
     const [loading, setLoading] = useState(false);
     const [isEditable, setIsEditable] = useState(false);
-    const [valuation, setValuation] = useState<Valuation[]>([]);
+    const [documents, setDocuments] = useState([]);
     const [user, setUser] = useState<User | null>(null);
     const [bankId, setBankId] = useState("");
     const [banks, setBanks] = useState<Bank[]>([]);
@@ -42,6 +31,9 @@ export default function MortgagesPage() {
     const [status, setStatus] = useState("PENDING");
     const [caseId, setCaseId] = useState("");
     const [showModal, setShowModal] = useState(false);
+    const [open, setOpen] = useState(false);
+    const [fileType, setFileType] = useState("");
+    const [file, setFile] = useState<any>(null);
 
     useEffect(() => {
         const storedUser = localStorage.getItem("user");
@@ -57,25 +49,29 @@ export default function MortgagesPage() {
 
     useEffect(() => {
         setLoading(true);
+
         const fetchMortgages = async () => {
             try {
-                const response = await api("/cases?mortgageStatus=APPLICATION_SUBMITTED", {
-                    method: "GET",
-                });
+                const response = await api(
+                    "/cases?mortgageStatus=APPLICATION_SUBMITTED",
+                    {method: "GET"}
+                );
 
                 if (response.ok) {
-                    setMortgages(response.results?.data?.cases)
+                    setMortgages(response.results?.data?.cases);
                 } else {
                     toast.error("Error fetching mortgage");
                 }
-
             } catch (e) {
-                toast.error("Error:" + e)
+                toast.error("Error: " + e);
+            } finally {
+                setLoading(false);
             }
-        }
-        fetchMortgages();
-        setLoading(false);
+        };
+
+        void fetchMortgages(); // ✅ explicitly ignored promise
     }, []);
+
 
     const fetchValuation = async (caseId: string) => {
         setLoading(true);
@@ -102,8 +98,9 @@ export default function MortgagesPage() {
 
     useEffect(() => {
         if (!caseId) return;
-        fetchValuation(caseId);
-    }, [caseId])
+        void fetchValuation(caseId); // ✅ explicitly ignore Promise
+    }, [caseId]);
+
 
     const handleModelOpener = async (id: string) => {
         setLoading(true);
@@ -164,9 +161,56 @@ export default function MortgagesPage() {
         setLoading(false);
     }
 
+    const handleOpenModel = (caseId: string, documents: any) => {
+        setOpen(true);
+        const finalDocuments = documents.filter((doc: any) => doc.kind === "FOL" || doc.kind === "VALUATION");
+        setDocuments(finalDocuments)
+        setCaseId(caseId);
+    }
+
+    const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (file) {
+            setFile(file);
+        }
+    };
+
+
+    const uploadDocument = async (e: FormEvent) => {
+        e.preventDefault();
+        setLoading(true);
+
+        if (!file) {
+            alert("Please select a file first");
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append("document", file);
+
+        try {
+            const res = await api(`/cases/${caseId}/documents/${fileType}`, {
+                method: "PUT",
+                body: formData,
+            });
+
+            if (!res.ok) {
+                toast.error("Error while uploading case");
+            }
+
+            toast.success("Success: " + res.results.message)
+
+        } catch (err) {
+            console.error(err);
+            toast.error("Error: " + err);
+        } finally {
+            setLoading(false);
+        }
+    };
+
     if (loading || !mortgages) {
         return (
-            <div className="flex justify-center items-center h-screen text-xl">
+            <div className="flex min-h-screen items-center justify-center text-gray-500">
                 <PageLoader/>
             </div>
         );
@@ -176,9 +220,8 @@ export default function MortgagesPage() {
         <div className="flex flex-col min-h-screen">
             <Sidebar/>
             <main className="flex-1 px-4 py-8 sm:px-6 lg:px-8">
-                {loading && <PageLoader/>}
                 <div className="mx-auto max-w-7xl">
-                    {(user?.role === "BROKER") && (
+                    {(user?.role === "BROKER" || user?.role === "ORG_ADMIN") && (
                         <div className="mb-8 flex flex-wrap items-center justify-between gap-4">
                             <h1 className="text-3xl font-bold text-black dark:text-white">Mortgage Applications</h1>
                             <button
@@ -256,10 +299,18 @@ export default function MortgagesPage() {
 
                                         <td className="whitespace-nowrap px-6 py-4 text-sm font-medium">
                                             <button
-                                                onClick={() => {
-                                                    handleModelOpener(m.id)
-                                                }}
-                                                className="text-primary hover:underline">Valuation
+                                                onClick={() => void handleModelOpener(m.id)}
+                                                className="text-primary hover:underline">
+                                                Valuation
+                                            </button>
+
+                                            <span className="text-black/30 dark:text-white/30 m-3">|</span>
+
+                                            <button
+                                                onClick={() => handleOpenModel(m.id, m.documents)}
+                                                className="text-primary hover:underline items-center gap-1">
+                                                <span className="material-symbols-outlined">file_upload</span>
+                                                Documents
                                             </button>
                                             <span className="text-black/30 dark:text-white/30 m-3">|</span>
                                             <a className="text-primary hover:underline"
@@ -273,9 +324,165 @@ export default function MortgagesPage() {
                             })}
                             </tbody>
                         </table>
-
                     </div>
                 </div>
+                {/* MODAL BACKDROP */}
+                {open && (
+                    <div
+                        className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50">
+
+                        {/* MODAL CARD */}
+                        <form
+                            onSubmit={uploadDocument}
+                            className="bg-white dark:bg-background-dark p-8 rounded-xl shadow-xl w-full max-w-5xl relative"
+                        >
+                            {/* CLOSE BUTTON */}
+                            <button
+                                onClick={() => setOpen(false)}
+                                className="absolute top-3 right-3 text-gray-600 dark:text-gray-300 hover:text-primary"
+                            >
+                                <span className="material-symbols-outlined">close</span>
+                            </button>
+
+                            {/* MAIN GRID */}
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-6">
+
+                                {/* LEFT SIDE — FORM */}
+                                <div className="space-y-8">
+
+                                    <div>
+                                        <h2 className="text-3xl font-extrabold text-gray-900 dark:text-white text-center md:text-left">
+                                            Upload Valuation, FOL & Supporting Documents
+                                        </h2>
+                                        <p className="mt-2 text-sm text-gray-600 dark:text-gray-400 text-center md:text-left">
+                                            Upload the documents to complete the case.
+                                        </p>
+                                    </div>
+
+                                    <div
+                                        className="bg-white dark:bg-background-dark/50 p-8 rounded-lg shadow-md space-y-6">
+
+                                        {/* FILE TYPE */}
+                                        <div>
+                                            <label
+                                                htmlFor="deed-id"
+                                                className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+                                            >
+                                                File Type
+                                            </label>
+
+                                            <select
+                                                value={fileType}
+                                                onChange={(e) => setFileType(e.target.value)}
+                                                className="mt-1 form-input block w-full pl-3 pr-3 py-3
+                                bg-background-light dark:bg-background-dark
+                                border border-gray-300 dark:border-gray-700 rounded-md
+                                focus:outline-none focus:ring-primary focus:border-primary sm:text-sm"
+                                            >
+                                                <option value="">Select File Type</option>
+                                                <option value="VALUATION">Valuation</option>
+                                                <option value="FOL">FOL</option>
+                                            </select>
+                                        </div>
+
+                                        {/* FILE UPLOAD */}
+                                        <div>
+                                            <label
+                                                htmlFor="file-upload"
+                                                className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+                                            >
+                                                FOL and Valuation Documents (PDF/ZIP)
+                                            </label>
+
+                                            <label
+                                                htmlFor="file-upload"
+                                                className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300
+                            dark:border-gray-600 border-dashed rounded-md cursor-pointer
+                            hover:border-primary/70 dark:hover:border-primary/50 transition-colors"
+                                            >
+                                                <div className="space-y-1 text-center">
+                            <span className="material-symbols-outlined text-4xl text-gray-400 dark:text-gray-500">
+                                cloud_upload
+                            </span>
+                                                    <p className="text-sm text-gray-600 dark:text-gray-400">
+                                                        Drag & drop or <span className="text-primary font-semibold">click to upload</span>
+                                                    </p>
+                                                    <p className="text-xs text-gray-500 dark:text-gray-400">
+                                                        PDF, ZIP up to 50MB
+                                                    </p>
+
+                                                    {/* ATTACHED FILE */}
+                                                    {file && (
+                                                        <div className="text-sm text-green-600 flex items-center gap-2">
+                                                            <span
+                                                                className="material-symbols-outlined text-base">attach_file</span>
+                                                            {file?.name}
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            </label>
+
+                                            <input
+                                                onChange={handleFileChange}
+                                                id="file-upload"
+                                                name="file-upload"
+                                                type="file"
+                                                className="sr-only"
+                                            />
+                                        </div>
+
+                                        {/* SAVE BUTTON */}
+                                        <button
+                                            type="submit"
+                                            className="w-full flex justify-center py-3 px-4 rounded-md shadow-sm
+                        text-sm font-medium text-white bg-primary hover:bg-primary/90
+                        focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
+                                        >
+                                            Save
+                                        </button>
+                                    </div>
+                                </div>
+
+                                {/* RIGHT SIDE — DOCUMENT LIST */}
+                                <div className="space-y-4">
+                                    <div className="text-left">
+                                        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Uploaded
+                                            Documents</h1>
+                                        <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">View or download
+                                            previously uploaded files for this case.</p>
+                                    </div>
+                                    {/* DOCUMENT ITEM */}
+                                    {documents.map((document: any) => (
+                                        <div key={document.id}
+                                             className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
+                                            <div className="flex items-center space-x-4">
+                                            <span
+                                                className="material-icons-outlined text-gray-400 dark:text-gray-500 text-3xl">description</span>
+                                                <div>
+                                                    <p className="font-medium text-gray-800 dark:text-gray-100">{document.kind}</p>
+                                                    <p className="text-xs text-gray-500 dark:text-gray-400">PDF • 12 Jan
+                                                        2024</p>
+                                                </div>
+                                            </div>
+
+                                            <div className="flex items-center space-x-3">
+                                                {/*<button className="text-gray-500 dark:text-gray-400 hover:text-primary">*/}
+                                                {/*    <span className="material-icons-outlined">visibility</span>*/}
+                                                {/*</button>*/}
+                                                <button className="text-gray-500 dark:text-gray-400 hover:text-primary">
+                                                    <span className="material-icons-outlined">download</span>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+
+                            </div>
+                        </form>
+
+                    </div>
+                )}
+
                 {showModal && (
                     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm">
                         <div

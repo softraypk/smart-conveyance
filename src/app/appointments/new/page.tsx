@@ -25,7 +25,7 @@ export default function AddAppointment() {
                     </div>
 
                     <div className="bg-white dark:bg-subtle-dark/50 rounded-lg shadow-sm p-8">
-                        <AppointmentForm mode="edit" bookingId={bookingId} setLoading={setLoading}/>
+                        <AppointmentForm mode="new" bookingId={bookingId} setLoading={setLoading}/>
                     </div>
                 </div>
             </main>

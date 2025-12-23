@@ -1,7 +1,50 @@
+"use client"
+
 import Sidebar from "@/components/Sidebar";
 import CaseTabs from "@/components/CaseTabs";
+import {useParams, useRouter} from "next/navigation";
+import {useEffect, useState} from "react";
+import {api} from "@/lib/api";
+import toast from "react-hot-toast";
 
 export default function OverviewPage() {
+    const [isLoading, setIsLoading] = useState(false);
+    const [caseSingle, setCaseSingle] = useState<any>("");
+    const [buyer, setBuyer] = useState<any>(null);
+    const [seller, setSeller] = useState<any>(null);
+    const params = useParams();
+    const id = params.id;
+
+    const router = useRouter();
+
+    useEffect(() => {
+        if (!id) return;
+        const listCase = async (id: string) => {
+            setIsLoading(true);
+            try {
+                const response = await api(`/cases/${id}`);
+
+                if (response.ok) {
+                    setCaseSingle(response.results?.data)
+                    const buyerParty = response.results?.data?.parties?.find((p: any) => p.role === "BUYER");
+                    const buyer = buyerParty?.members?.[0] || null;
+                    setBuyer(buyer);
+
+                    const sellerParty = response.results?.data?.parties?.find((p: any) => p.role === "SELLER");
+                    const seller = sellerParty?.members?.[0] || null;
+                    setSeller(seller);
+
+                } else {
+                    toast.error("Error: " + response.results.message);
+                }
+            } catch (error) {
+                toast.error("Error: " + error);
+            } finally {
+                setIsLoading(false);
+            }
+        }
+        listCase(id as string);
+    }, [id])
     return (
         <div className="flex min-h-screen">
             <div className="flex flex-col w-full">
@@ -31,11 +74,11 @@ export default function OverviewPage() {
                                         <div>
                                             <p className="text-gray-500 dark:text-gray-400 text-sm">Case Reference
                                                 Number</p>
-                                            <p className="text-[#333333] dark:text-white text-base font-medium">#CASEREF12345</p>
+                                            <p className="text-[#333333] dark:text-white text-base font-medium">#{caseSingle.id}</p>
                                         </div>
                                         <div>
                                             <p className="text-gray-500 dark:text-gray-400 text-sm">Case Type</p>
-                                            <p className="text-[#333333] dark:text-white text-base font-medium">Sale</p>
+                                            <p className="text-[#333333] dark:text-white text-base font-medium">{caseSingle.type}</p>
                                         </div>
                                         <div>
                                             <p className="text-gray-500 dark:text-gray-400 text-sm">Estimated Completion
@@ -63,22 +106,23 @@ export default function OverviewPage() {
                                             <p className="text-gray-500 dark:text-gray-400 text-sm">Full Property
                                                 Address</p>
                                             <p className="text-[#333333] dark:text-white text-base font-medium">
-                                                123 Main Street, Anytown, AT 12345, USA
+                                                {caseSingle.property?.emirate} {caseSingle.property?.unit} {caseSingle.property?.community}, {caseSingle.property?.building}
                                             </p>
                                         </div>
                                         <div>
-                                            <p className="text-gray-500 dark:text-gray-400 text-sm">Property Type</p>
-                                            <p className="text-[#333333] dark:text-white text-base font-medium">Detached
-                                                House</p>
+                                            <p className="text-gray-500 dark:text-gray-400 text-sm">DEED NO</p>
+                                            <p className="text-[#333333] dark:text-white text-base font-medium">
+                                                {caseSingle.property?.titleDeedNo}
+                                            </p>
                                         </div>
-                                        <div>
-                                            <p className="text-gray-500 dark:text-gray-400 text-sm">Tenure</p>
-                                            <p className="text-[#333333] dark:text-white text-base font-medium">Freehold</p>
-                                        </div>
-                                        <div>
-                                            <p className="text-gray-500 dark:text-gray-400 text-sm">Purchase Price</p>
-                                            <p className="text-[#333333] dark:text-white text-base font-medium">$500,000.00</p>
-                                        </div>
+                                        {/*<div>*/}
+                                        {/*    <p className="text-gray-500 dark:text-gray-400 text-sm">Tenure</p>*/}
+                                        {/*    <p className="text-[#333333] dark:text-white text-base font-medium">Freehold</p>*/}
+                                        {/*</div>*/}
+                                        {/*<div>*/}
+                                        {/*    <p className="text-gray-500 dark:text-gray-400 text-sm">Purchase Price</p>*/}
+                                        {/*    <p className="text-[#333333] dark:text-white text-base font-medium">$500,000.00</p>*/}
+                                        {/*</div>*/}
                                     </div>
                                 </div>
 
@@ -92,20 +136,21 @@ export default function OverviewPage() {
                                     <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
                                         <div>
                                             <p className="text-gray-500 dark:text-gray-400 text-sm">Full Name</p>
-                                            <p className="text-[#333333] dark:text-white text-base font-medium">Alice
-                                                Johnson</p>
+                                            <p className="text-[#333333] dark:text-white text-base font-medium">
+                                                {buyer?.name}
+                                            </p>
                                         </div>
                                         <div>
                                             <p className="text-gray-500 dark:text-gray-400 text-sm">Contact
                                                 Information</p>
                                             <p className="text-[#333333] dark:text-white text-base font-medium">(123)
-                                                456-7890 | alice.j@email.com</p>
+                                                {buyer?.phone} | {buyer?.user?.email}</p>
                                         </div>
-                                        <div className="col-span-2">
-                                            <p className="text-gray-500 dark:text-gray-400 text-sm">Current Address</p>
-                                            <p className="text-[#333333] dark:text-white text-base font-medium">456 Oak
-                                                Avenue, Sometown, ST 67890</p>
-                                        </div>
+                                        {/*<div className="col-span-2">*/}
+                                        {/*    <p className="text-gray-500 dark:text-gray-400 text-sm">Current Address</p>*/}
+                                        {/*    <p className="text-[#333333] dark:text-white text-base font-medium">456 Oak*/}
+                                        {/*        Avenue, Sometown, ST 67890</p>*/}
+                                        {/*</div>*/}
                                     </div>
                                 </div>
 
@@ -119,20 +164,21 @@ export default function OverviewPage() {
                                     <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
                                         <div>
                                             <p className="text-gray-500 dark:text-gray-400 text-sm">Full Name</p>
-                                            <p className="text-[#333333] dark:text-white text-base font-medium">Bob
-                                                Williams</p>
+                                            <p className="text-[#333333] dark:text-white text-base font-medium">
+                                                {seller?.name}
+                                            </p>
                                         </div>
                                         <div>
                                             <p className="text-gray-500 dark:text-gray-400 text-sm">Contact
                                                 Information</p>
                                             <p className="text-[#333333] dark:text-white text-base font-medium">(987)
-                                                654-3210 | bob.w@email.com</p>
+                                                {seller?.phone} | {seller?.user?.email}</p>
                                         </div>
-                                        <div className="col-span-2">
-                                            <p className="text-gray-500 dark:text-gray-400 text-sm">Current Address</p>
-                                            <p className="text-[#333333] dark:text-white text-base font-medium">789 Pine
-                                                Street, Otherville, OT 54321</p>
-                                        </div>
+                                        {/*<div className="col-span-2">*/}
+                                        {/*    <p className="text-gray-500 dark:text-gray-400 text-sm">Current Address</p>*/}
+                                        {/*    <p className="text-[#333333] dark:text-white text-base font-medium">789 Pine*/}
+                                        {/*        Street, Otherville, OT 54321</p>*/}
+                                        {/*</div>*/}
                                     </div>
                                 </div>
 
@@ -140,13 +186,15 @@ export default function OverviewPage() {
 
                             <div className="flex justify-end gap-4 p-4 mt-6">
                                 <button
+                                    onClick={() => router.push('/cases/')}
                                     className="px-6 py-2.5 rounded text-[#333333] dark:text-white font-semibold text-base bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors">
                                     Back
                                 </button>
-                                <button
-                                    className="px-6 py-2.5 rounded text-white font-semibold text-base bg-primary hover:bg-primary/90 transition-colors">
-                                    Create Case
-                                </button>
+                                {/*<button*/}
+                                {/*    */}
+                                {/*    className="px-6 py-2.5 rounded text-white font-semibold text-base bg-primary hover:bg-primary/90 transition-colors">*/}
+                                {/*    Create Case*/}
+                                {/*</button>*/}
                             </div>
 
                         </div>

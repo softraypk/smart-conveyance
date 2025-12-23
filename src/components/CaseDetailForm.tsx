@@ -1,9 +1,10 @@
 "use client";
 
-import { useRouter, usePathname } from "next/navigation";
-import { FormEvent, useEffect, useState } from "react";
+import {useRouter, usePathname} from "next/navigation";
+import {FormEvent, useEffect, useState} from "react";
 import toast from "react-hot-toast";
-import { api } from "@/lib/api";
+import {api} from "@/lib/api";
+import PageLoader from "@/components/PageLoader";
 
 interface User {
     id: number;
@@ -19,7 +20,7 @@ interface User {
 interface CaseData {
     id: string;
     type: string;
-    notes?: string;
+    description?: string;
 }
 
 export default function CaseDetailForm() {
@@ -56,11 +57,11 @@ export default function CaseDetailForm() {
             }
 
             try {
-                const res = await api(`/cases/${caseId}`, { method: "GET" });
+                const res = await api(`/cases/${caseId}`, {method: "GET"});
                 if (res.ok && res.results?.data) {
                     const data: CaseData = res.results.data;
                     setType(data.type || "SALE");
-                    setNotes(data.notes || "");
+                    setNotes(data.description || "");
                 } else {
                     toast.error("Failed to load case details.");
                 }
@@ -87,7 +88,7 @@ export default function CaseDetailForm() {
 
         const payload = {
             type,
-            notes,
+            description: notes,
         };
 
         try {
@@ -119,7 +120,7 @@ export default function CaseDetailForm() {
     if (loading) {
         return (
             <div className="flex justify-center items-center h-64">
-                <p className="text-gray-600 dark:text-gray-400">Loading case details...</p>
+                <PageLoader/>
             </div>
         );
     }
@@ -167,7 +168,8 @@ export default function CaseDetailForm() {
             </section>
 
             {/* Buttons */}
-            <div className="flex flex-col sm:flex-row justify-end items-center gap-4 px-4 py-6 mt-4 border-t border-[#cfdfe7] dark:border-gray-700">
+            <div
+                className="flex flex-col sm:flex-row justify-end items-center gap-4 px-4 py-6 mt-4 border-t border-[#cfdfe7] dark:border-gray-700">
                 <button
                     type="button"
                     onClick={() => router.back()}

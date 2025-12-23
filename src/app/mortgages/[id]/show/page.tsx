@@ -8,9 +8,11 @@ import toast from "react-hot-toast";
 import SummaryTab from "@/components/SummaryTab";
 import ValuationTab from "@/components/ValuationTab";
 import OffersTab from "@/components/OffersTab";
+import PageLoader from "@/components/PageLoader";
 
 export default function ShowMortgagePage() {
     const [mortgage, setMortgage] = useState<any | null>(null)
+    const [isLoading, setIsLoading] = useState(false);
     const [activeTab, setActiveTab] = useState("summary");
 
     const params = useParams();
@@ -19,6 +21,7 @@ export default function ShowMortgagePage() {
     const router = useRouter();
 
     useEffect(() => {
+        setIsLoading(true);
         const fetchMortgage = async () => {
             try {
                 const respnse = await api(`/cases/${id}/mortgage`);
@@ -29,6 +32,8 @@ export default function ShowMortgagePage() {
                 }
             } catch (e) {
                 console.error(e);
+            } finally {
+                setIsLoading(false);
             }
         }
         fetchMortgage();
@@ -38,6 +43,7 @@ export default function ShowMortgagePage() {
         <div className="flex flex-col min-h-screen">
             <Sidebar/>
             <main className="flex-1 px-4 sm:px-6 lg:px-8 py-8">
+                {isLoading && <PageLoader/>}
                 <div className="max-w-7xl mx-auto">
                     {/* HEADER */}
                     <div className="mb-6">
@@ -55,7 +61,7 @@ export default function ShowMortgagePage() {
                             {[
                                 {key: "summary", label: "Summary"},
                                 {key: "valuation", label: "Valuation"},
-                                //{key: "offers", label: "Offers"},
+                                {key: "offers", label: "Offers"},
                             ].map((tab) => (
                                 <button
                                     key={tab.key}
@@ -78,7 +84,7 @@ export default function ShowMortgagePage() {
                             <SummaryTab mortgage={mortgage}/>
                         )}
                         {activeTab === "valuation" && (
-                            <ValuationTab caseId={mortgage?.caseId}/>
+                            <ValuationTab caseId={mortgage?.caseId} setIsLoading={setIsLoading}/>
                         )}
                         {activeTab === "offers" && (
                             <OffersTab mortgage={mortgage}/>

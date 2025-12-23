@@ -5,6 +5,7 @@ import {useEffect, useState} from "react";
 import Navbar from "@/components/Navbar";
 import NavOrg from "@/components/NavOrg";
 import NavBro from "@/components/NavBro";
+import {TrustHeader} from "@/components/TrustHeader";
 
 interface User {
     name: string;
@@ -39,10 +40,7 @@ export default function Sidebar() {
 
     // ✅ If user is not loaded yet
     if (!user) {
-        return (
-            <>
-            </>
-        );
+        return;
     }
 
     // ✅ ORG_ADMIN Layout
@@ -127,6 +125,14 @@ export default function Sidebar() {
         );
     }
 
+
+    // Truestee Header
+    if (user.role === "TRUSTEE") {
+        return (
+            <TrustHeader/>
+        )
+    }
+
     // ✅ BRO_ADMIN Layout
     if (user.role === "MORTGAGE_BROKER" || user.role === "BROKER") {
         return (
@@ -193,113 +199,6 @@ export default function Sidebar() {
                     </div>
                 </div>
             </header>
-        );
-    }
-
-    if (user.role === "TRUSTEE") {
-        return (
-            <aside
-                className="w-80 bg-content-light dark:bg-content-dark border-r border-border-light dark:border-border-dark flex flex-col">
-                <div className="flex items-center gap-3 px-6 py-5 border-b border-border-light dark:border-border-dark">
-                    <div className="w-8 h-8 text-primary">
-                        <svg
-                            fill="none"
-                            viewBox="0 0 48 48"
-                            xmlns="http://www.w3.org/2000/svg">
-                            <path
-                                clipRule="evenodd"
-                                fillRule="evenodd"
-                                d="M47.2426 24L24 47.2426L0.757355 24L24 0.757355L47.2426 24ZM12.2426 21H35.7574L24 9.24264L12.2426 21Z"
-                                fill="currentColor">
-                            </path>
-                        </svg>
-                    </div>
-                    <h1 className="text-xl font-bold">Smart Conveyancing</h1>
-                </div>
-
-                <div className="p-4">
-                    <h2 className="text-lg font-bold px-2 pb-3">Compliance Ready Cases</h2>
-
-                    <div className="space-y-2">
-
-                        {/* Item */}
-                        <div
-                            className="flex items-center gap-4 p-3 rounded-lg hover:bg-primary/10 dark:hover:bg-primary/20 cursor-grab active:cursor-grabbing">
-                            <div
-                                className="flex items-center justify-center rounded-lg bg-primary/10 dark:bg-primary/20 shrink-0 size-12 text-primary">
-                                <span className="material-symbols-outlined">home</span>
-                            </div>
-                            <div className="flex-1">
-                                <p className="font-semibold">Buyer: Sarah Khan</p>
-                                <p className="text-sm text-text-muted-light dark:text-text-muted-dark">
-                                    Case ID: 123456
-                                </p>
-                            </div>
-                        </div>
-
-                        {/* Item */}
-                        <div
-                            className="flex items-center gap-4 p-3 rounded-lg hover:bg-primary/10 dark:hover:bg-primary/20 cursor-grab active:cursor-grabbing">
-                            <div
-                                className="flex items-center justify-center rounded-lg bg-primary/10 dark:bg-primary/20 shrink-0 size-12 text-primary">
-                                <span className="material-symbols-outlined">home</span>
-                            </div>
-                            <div className="flex-1">
-                                <p className="font-semibold">Buyer: Omar Hassan</p>
-                                <p className="text-sm text-text-muted-light dark:text-text-muted-dark">
-                                    Case ID: 789012
-                                </p>
-                            </div>
-                        </div>
-
-                        {/* Item */}
-                        <div
-                            className="flex items-center gap-4 p-3 rounded-lg hover:bg-primary/10 dark:hover:bg-primary/20 cursor-grab active:cursor-grabbing">
-                            <div
-                                className="flex items-center justify-center rounded-lg bg-primary/10 dark:bg-primary/20 shrink-0 size-12 text-primary">
-                                <span className="material-symbols-outlined">home</span>
-                            </div>
-                            <div className="flex-1">
-                                <p className="font-semibold">Buyer: Fatima Ali</p>
-                                <p className="text-sm text-text-muted-light dark:text-text-muted-dark">
-                                    Case ID: 345678
-                                </p>
-                            </div>
-                        </div>
-
-                        {/* Item */}
-                        <div
-                            className="flex items-center gap-4 p-3 rounded-lg hover:bg-primary/10 dark:hover:bg-primary/20 cursor-grab active:cursor-grabbing">
-                            <div
-                                className="flex items-center justify-center rounded-lg bg-primary/10 dark:bg-primary/20 shrink-0 size-12 text-primary">
-                                <span className="material-symbols-outlined">home</span>
-                            </div>
-                            <div className="flex-1">
-                                <p className="font-semibold">Buyer: Ahmed Rashid</p>
-                                <p className="text-sm text-text-muted-light dark:text-text-muted-dark">
-                                    Case ID: 901234
-                                </p>
-                            </div>
-                        </div>
-
-                        {/* Item */}
-                        <div
-                            className="flex items-center gap-4 p-3 rounded-lg hover:bg-primary/10 dark:hover:bg-primary/20 cursor-grab active:cursor-grabbing">
-                            <div
-                                className="flex items-center justify-center rounded-lg bg-primary/10 dark:bg-primary/20 shrink-0 size-12 text-primary">
-                                <span className="material-symbols-outlined">home</span>
-                            </div>
-                            <div className="flex-1">
-                                <p className="font-semibold">Buyer: Aisha Mahmoud</p>
-                                <p className="text-sm text-text-muted-light dark:text-text-muted-dark">
-                                    Case ID: 567890
-                                </p>
-                            </div>
-                        </div>
-
-                    </div>
-                </div>
-            </aside>
         );
     }
 

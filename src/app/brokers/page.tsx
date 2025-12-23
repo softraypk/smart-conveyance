@@ -4,6 +4,7 @@ import Sidebar from "@/components/Sidebar";
 import {useEffect, useState} from "react";
 import {useRouter} from "next/navigation";
 import {api} from "@/lib/api";
+import PageLoader from "@/components/PageLoader";
 
 interface User {
     name: string;
@@ -73,7 +74,7 @@ export default function BrokersPage() {
     if (loading) {
         return (
             <div className="flex min-h-screen items-center justify-center text-gray-500">
-                Loading brokers...
+                <PageLoader/>
             </div>
         );
     }
