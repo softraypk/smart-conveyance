@@ -6,7 +6,7 @@ import InvoiceForm from "@/components/InvoiceForm";
 import {useParams} from "next/navigation";
 import {useState} from "react";
 
-export default function EditInvoicePage() {
+export default function InvoiceEditPage() {
     const [isLoading, setIsLoading] = useState(false);
     const params = useParams();
 
