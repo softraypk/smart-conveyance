@@ -41,20 +41,28 @@ export default function BuyerPage() {
         try {
             const response = await api(`/cases/${caseId}`, {method: "GET"});
 
-            const data = response.results?.data;
-            const buyerParties = data?.parties?.filter((p: any) => p.role === "BUYER") || [];
+            const data = response?.results?.data;
 
-            const formattedBuyers: Buyer[] = buyerParties.map((b: any) => ({
-                id: b.id,
-                name: b.members[0]?.user?.name || b.name || null,
-                phone: b.members[0]?.phone || null,
-                email: b.members[0]?.user?.email || null,
-                user: {
-                    email: b.members[0]?.user?.email || "",
-                    name: b.members[0]?.user?.name || "",
-                    role: b.members[0]?.user?.role,
-                },
-            }));
+            const buyerParties = Array.isArray(data?.parties)
+                ? data.parties.filter((p: any) => p.role === "BUYER")
+                : [];
+
+            /**
+             * Flatten all members from all BUYER parties
+             */
+            const formattedBuyers: Buyer[] = buyerParties.flatMap((party: any) =>
+                (party.members || []).map((member: any) => ({
+                    id: party.id,
+                    name: member.user?.name ?? party.name ?? null,
+                    phone: member.phone ?? null,
+                    email: member.user?.email ?? null,
+                    user: {
+                        email: member.user?.email ?? "",
+                        name: member.user?.name ?? "",
+                        role: member.user?.role ?? null,
+                    },
+                }))
+            );
 
             setBuyers(formattedBuyers);
         } catch (err: any) {
@@ -132,8 +140,8 @@ export default function BuyerPage() {
                                             <tbody
                                                 className="bg-white dark:bg-slate-800 divide-y divide-gray-100 dark:divide-gray-700">
                                             {buyers.length > 0 ? (
-                                                buyers.map((buyer, index) => (
-                                                    <tr key={buyer.id}>
+                                                buyers.map((buyer :any, index) => (
+                                                    <tr key={buyer.memberId}>
                                                         <td className="px-6 py-4 text-sm text-gray-700 dark:text-gray-200">{index + 1}</td>
                                                         <td className="px-6 py-4 text-sm text-gray-700 dark:text-gray-200">
                                                             {buyer.user.email || "—"}

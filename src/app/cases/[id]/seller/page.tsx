@@ -40,22 +40,30 @@ export default function SellerPage() {
         try {
             const response = await api(`/cases/${caseId}`, {method: "GET"});
 
-            const data = response.results?.data;
-            const sellerParties = data?.parties?.filter((p: any) => p.role === "SELLER") || [];
+            const data = response?.results?.data;
 
-            const formattedSeller: Seller[] = sellerParties.map((b: any) => ({
-                id: b.id,
-                name: b.members[0]?.name || null,
-                phone: b.members[0]?.phone || null,
-                email: b.members[0]?.email || null,
-                user: {
-                    email: b.members[0]?.user?.email || "",
-                    name: b.members[0]?.user?.name || "",
-                    role: b.members[0]?.user?.role,
-                },
-            }));
+            const sellerParties = Array.isArray(data?.parties)
+                ? data.parties.filter((p: any) => p.role === "SELLER")
+                : [];
 
-            setSellers(formattedSeller);
+            /**
+             * Flatten all members from all SELLER parties
+             */
+            const formattedSellers: Seller[] = sellerParties.flatMap((party: any) =>
+                (party.members || []).map((member: any) => ({
+                    id: party.id,
+                    name: member.user?.name ?? party.name ?? null,
+                    phone: member.phone ?? null,
+                    email: member.user?.email ?? null,
+                    user: {
+                        email: member.user?.email ?? "",
+                        name: member.user?.name ?? "",
+                        role: member.user?.role ?? null,
+                    },
+                }))
+            );
+
+            setSellers(formattedSellers);
         } catch (err: any) {
             console.error("❌ Error fetching buyer data:", err);
             setError("Failed to load buyer data.");
@@ -131,14 +139,14 @@ export default function SellerPage() {
                                             <tbody
                                                 className="bg-white dark:bg-slate-800 divide-y divide-gray-100 dark:divide-gray-700">
                                             {sellers.length > 0 ? (
-                                                sellers.map((seller, index) => (
-                                                    <tr key={seller.id}>
+                                                sellers.map((seller: any, index) => (
+                                                    <tr key={seller.memberId}>
                                                         <td className="px-6 py-4 text-sm text-gray-700 dark:text-gray-200">{index + 1}</td>
                                                         <td className="px-6 py-4 text-sm text-gray-700 dark:text-gray-200">
-                                                            {seller?.user?.email || "—"}
+                                                            {seller.email || "—"}
                                                         </td>
                                                         <td className="px-6 py-4 text-sm text-gray-700 dark:text-gray-200">
-                                                            {seller?.name || "—"}
+                                                            {seller.name || "—"}
                                                         </td>
                                                         <td className="px-6 py-4 text-sm text-gray-700 dark:text-gray-200">
                                                             {seller.phone || "—"}

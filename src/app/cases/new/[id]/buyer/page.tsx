@@ -38,20 +38,28 @@ export default function BuyerPage() {
         try {
             const response = await api(`/cases/${caseId}`, {method: "GET"});
 
-            const data = response.results?.data;
-            const buyerParties = data?.parties?.filter((p: any) => p.role === "BUYER") || [];
+            const data = response?.results?.data;
 
-            const formattedBuyers: Buyer[] = buyerParties.map((b: any) => ({
-                id: b.id,
-                name: b.user?.name || b.name || null,
-                phone: b.phone || null,
-                email: b.user?.email || null,
-                user: {
-                    email: b.user?.email || "",
-                    name: b.user?.name || "",
-                    role: b.user?.role,
-                },
-            }));
+            const buyerParties = Array.isArray(data?.parties)
+                ? data.parties.filter((p: any) => p.role === "BUYER")
+                : [];
+
+            /**
+             * Flatten all members from all BUYER parties
+             */
+            const formattedBuyers: Buyer[] = buyerParties.flatMap((party: any) =>
+                (party.members || []).map((member: any) => ({
+                    id: party.id,
+                    name: member.user?.name ?? party.name ?? null,
+                    phone: member.phone ?? null,
+                    email: member.user?.email ?? null,
+                    user: {
+                        email: member.user?.email ?? "",
+                        name: member.user?.name ?? "",
+                        role: member.user?.role ?? null,
+                    },
+                }))
+            );
 
             setBuyers(formattedBuyers);
         } catch (err: any) {

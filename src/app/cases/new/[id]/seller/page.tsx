@@ -40,19 +40,26 @@ export default function SellerPage() {
             const response: any = await api(`/cases/${caseId}`, {method: "GET"});
             const data = response?.results?.data;
 
-            const sellerParties = data?.parties?.filter((p: any) => p.role === "SELLER") || [];
+            const sellerParties = Array.isArray(data?.parties)
+                ? data.parties.filter((p: any) => p.role === "SELLER")
+                : [];
 
-            const formattedSellers: Seller[] = sellerParties.map((s: any) => ({
-                id: s.id,
-                name: s.name || null,
-                phone: s.phone || null,
-                email: s.email || null,
-                user: {
-                    email: s.user?.email || "",
-                    name: s.user?.name || "",
-                    role: s.user?.role,
-                },
-            }));
+            /**
+             * Flatten all members from all SELLER parties
+             */
+            const formattedSellers: Seller[] = sellerParties.flatMap((party: any) =>
+                (party.members || []).map((member: any) => ({
+                    id: party.id,
+                    name: member.user?.name ?? party.name ?? null,
+                    phone: member.phone ?? null,
+                    email: member.user?.email ?? null,
+                    user: {
+                        email: member.user?.email ?? "",
+                        name: member.user?.name ?? "",
+                        role: member.user?.role ?? null,
+                    },
+                }))
+            );
 
             setSellers(formattedSellers);
         } catch (err) {

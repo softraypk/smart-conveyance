@@ -69,7 +69,7 @@ function InvoicesPage() {
                                     <th className="px-6 py-4 text-sm font-semibold text-on-surface-light dark:text-on-surface-dark tracking-wider">Invoice</th>
                                     <th className="px-6 py-4 text-sm font-semibold text-on-surface-light dark:text-on-surface-dark tracking-wider text-right">Amount</th>
                                     <th className="px-6 py-4 text-sm font-semibold text-on-surface-light dark:text-on-surface-dark tracking-wider">Date</th>
-                                    <th className="px-6 py-4 text-sm font-semibold text-on-surface-light dark:text-on-surface-dark tracking-wider">Method</th>
+                                    <th className="px-6 py-4 text-sm font-semibold text-on-surface-light dark:text-on-surface-dark tracking-wider">Status</th>
                                     <th className="px-6 py-4 text-sm font-semibold text-on-surface-light dark:text-on-surface-dark tracking-wider"></th>
                                 </tr>
                                 </thead>
@@ -77,8 +77,8 @@ function InvoicesPage() {
                                 {invoices.map((invoice: any) => (
                                     <tr key={invoice.id}
                                         className="hover:bg-primary/5 dark:hover:bg-primary/10 transition-colors">
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-primary">#{invoice.id}</td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-muted-light dark:text-muted-dark">INV-2023-{invoice.id}</td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-primary">{invoice.id}</td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-muted-light dark:text-muted-dark">{invoice.id}</td>
                                         <td className="px-6 py-4 whitespace-nowrap text-sm text-on-surface-light dark:text-on-surface-dark text-right font-medium">
                                             {new Intl.NumberFormat("en-AE", {
                                                 style: "currency",
@@ -89,8 +89,8 @@ function InvoicesPage() {
                                         <td className="px-6 py-4 whitespace-nowrap text-sm text-muted-light dark:text-muted-dark">
                                             {new Date(invoice.dueDate).toLocaleDateString()}
                                         </td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-muted-light dark:text-muted-dark">Credit
-                                            Card
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-muted-light dark:text-muted-dark">
+                                            {invoice.status}
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                             <a className="text-primary hover:underline"
