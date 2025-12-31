@@ -18,13 +18,14 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <html lang="en" className={inter.className}>
         <head>
             <link
-                href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined&display=optional"
+                href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined"
                 rel="stylesheet"
             />
             <link
-                href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined&display=optional"
+                href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined"
                 rel="stylesheet"
             />
+            <title>Welcome To Smart Conveyance</title>
         </head>
         <body className="bg-background-light dark:bg-background-dark">
         {children}
