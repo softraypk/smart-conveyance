@@ -25,6 +25,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined"
                 rel="stylesheet"
             />
+            <title>Welcome To Smart Conveyance</title>
         </head>
         <body className="bg-background-light dark:bg-background-dark">
         {children}
