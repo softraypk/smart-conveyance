@@ -1,7 +1,6 @@
-@tailwind utilities;
-
 @import "tailwindcss";
 @import "./theme.css";
+
 
 .material-symbols-outlined {
     font-variation-settings: "FILL" 0,
