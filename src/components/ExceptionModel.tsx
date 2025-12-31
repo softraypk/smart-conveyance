@@ -2,6 +2,7 @@
 import {FormEvent, useEffect, useState} from "react";
 import toast from "react-hot-toast";
 import {api} from "@/lib/api";
+import Image from "next/dist/client/legacy/image";
 
 interface Props {
     caseId: string | null;
@@ -91,7 +92,7 @@ export default function ExceptionModal({caseId, open, onClose}: Props) {
 
                                 <div className="flex items-center gap-3 mt-1">
                                     <div className="w-8 h-8 rounded-full bg-gray-200 overflow-hidden">
-                                        <img alt="User avatar"
+                                        <Image alt="User avatar"
                                              className="w-full h-full object-cover"
                                              src="https://lh3.googleusercontent.com/aida-public/AB6AXuDh2XxtgOhS_kz2KaTg8MB9jx6hcePmu_xFoLd-LNxuTG6zLrkz0J3e58oasODY9sVYowcZZpvAN_KfYrVpiyCJXuiMaMayzkInXRU_q5j7olGgbaizxtmBnAWFR0L1h0mlhtt68oFefMd09yV2jPEAPs1sqUQ4p-aD-ib9NDkpGwbhQTL6MYBc5trj7V7Vaqk1zOi127f8DaffPyd_eb-nSpv41nmFS2pbe5_9vRAtRJz1w4DNTZiIDklK3CAQL_AwytqQe9h7vzHK"/>
                                     </div>
