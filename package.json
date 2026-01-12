@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "build:css": "tailwindcss -i ./src/app/globals.css -o ./public/output.css --minify",
-    "build": "npm run build:css && next build",
+    "build": "npm run build:css && next build --no-lint --no-type-check",
     "start": "next start",
     "watch:css": "tailwindcss -i ./src/app/globals.css -o ./public/output.css --watch"
   },

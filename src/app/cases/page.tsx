@@ -97,19 +97,22 @@ export default function CasesPage() {
     const fetchExistingMortgage = async (singlecase: SingleCase) => {
         setLoading(true);
         try {
-            const mortgageParties = singlecase.parties?.filter((p: any) => p.role === "MORTGAGE_BROKER") || [];
-            console.log(mortgageParties);
-            const formattedMortgages: Mortgage[] = mortgageParties.map((b: any) => ({
-                id: b.id,
-                name: b.members[0]?.user?.name || b.members[0]?.name || null,
-                phone: b.members[0]?.phone || null,
-                email: b.members[0]?.user?.email || null,
-                user: {
-                    email: b.members[0]?.user?.email || "",
-                    name: b.members[0]?.user?.name || "",
-                    role: b.members[0]?.user?.role,
-                },
-            }));
+            const mortgageParties =
+                singlecase.parties?.filter((p: any) => p.role === "MORTGAGE_BROKER") || [];
+
+            const formattedMortgages: Mortgage[] = mortgageParties.flatMap((party: any) =>
+                (party.members || []).map((member: any) => ({
+                    id: member.id, // ✅ UNIQUE
+                    name: member.user?.name ?? party.name ?? null,
+                    phone: member.phone ?? null,
+                    email: member.user?.email ?? null,
+                    user: {
+                        email: member.user?.email ?? "",
+                        name: member.user?.name ?? "",
+                        role: member.user?.role ?? null,
+                    },
+                }))
+            );
 
             setMortgages(formattedMortgages);
         } finally {

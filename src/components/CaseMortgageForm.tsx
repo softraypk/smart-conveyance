@@ -21,7 +21,7 @@ interface CaseBuyerFormProps {
 }
 
 export default function CaseMortgageForm({caseId, mortgageToEdit, onSuccess}: CaseBuyerFormProps) {
-    const [role] = useState("BUYER");
+    const [role] = useState("MORTGAGE_BROKER");
     const [name, setName] = useState("");
     const [email, setEmail] = useState("");
     const [phoneNumber, setPhoneNumber] = useState("");

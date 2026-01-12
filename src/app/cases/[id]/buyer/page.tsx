@@ -52,7 +52,7 @@ export default function BuyerPage() {
              */
             const formattedBuyers: Buyer[] = buyerParties.flatMap((party: any) =>
                 (party.members || []).map((member: any) => ({
-                    id: party.id,
+                    id: member.id,
                     name: member.user?.name ?? party.name ?? null,
                     phone: member.phone ?? null,
                     email: member.user?.email ?? null,
@@ -141,7 +141,7 @@ export default function BuyerPage() {
                                                 className="bg-white dark:bg-slate-800 divide-y divide-gray-100 dark:divide-gray-700">
                                             {buyers.length > 0 ? (
                                                 buyers.map((buyer :any, index) => (
-                                                    <tr key={buyer.memberId}>
+                                                    <tr key={buyer.id}>
                                                         <td className="px-6 py-4 text-sm text-gray-700 dark:text-gray-200">{index + 1}</td>
                                                         <td className="px-6 py-4 text-sm text-gray-700 dark:text-gray-200">
                                                             {buyer.user.email || "—"}

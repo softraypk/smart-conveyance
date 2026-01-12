@@ -4,13 +4,16 @@ import Sidebar from "@/components/Sidebar";
 import PageLoader from "@/components/PageLoader";
 import InvoiceForm from "@/components/InvoiceForm";
 import {useParams} from "next/navigation";
-import {useState} from "react";
+import {use, useState} from "react";
 
-export default function InvoiceEditPage() {
+interface Props {
+    params: Promise<{ id: string | string[] }>;
+}
+
+export default function EditInvoicePage({params}: Props) {
     const [isLoading, setIsLoading] = useState(false);
-    const params = useParams();
-
-    const rawId = params?.id;
+    const unwrappedParams = use(params); // ✅ unwrap the promise
+    const rawId = unwrappedParams.id;
 
     const invoiceId: string | null = Array.isArray(rawId)
         ? rawId[0]

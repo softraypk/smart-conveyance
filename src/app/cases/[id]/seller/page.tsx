@@ -51,7 +51,7 @@ export default function SellerPage() {
              */
             const formattedSellers: Seller[] = sellerParties.flatMap((party: any) =>
                 (party.members || []).map((member: any) => ({
-                    id: party.id,
+                    id: member.id,
                     name: member.user?.name ?? party.name ?? null,
                     phone: member.phone ?? null,
                     email: member.user?.email ?? null,
@@ -140,7 +140,7 @@ export default function SellerPage() {
                                                 className="bg-white dark:bg-slate-800 divide-y divide-gray-100 dark:divide-gray-700">
                                             {sellers.length > 0 ? (
                                                 sellers.map((seller: any, index) => (
-                                                    <tr key={seller.memberId}>
+                                                    <tr key={seller.id}>
                                                         <td className="px-6 py-4 text-sm text-gray-700 dark:text-gray-200">{index + 1}</td>
                                                         <td className="px-6 py-4 text-sm text-gray-700 dark:text-gray-200">
                                                             {seller.email || "—"}

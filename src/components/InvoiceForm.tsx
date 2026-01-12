@@ -50,15 +50,11 @@ export default function InvoiceForm({invoiceId, setIsLoading}: InvoicePageProps)
 
     useEffect(() => {
         if (!invoiceId) return; // create mode
-
         const loadInvoice = async () => {
             setIsLoading(true);
 
             try {
-                const res = await api(
-                    `/invoices/${invoiceId}`,
-                    {method: "GET"}
-                );
+                const res = await api(`/invoices/${invoiceId}`, {method: "GET"});
 
                 if (!res.ok) {
                     toast.error(res.results?.message || "Invoice not found");
@@ -67,7 +63,6 @@ export default function InvoiceForm({invoiceId, setIsLoading}: InvoicePageProps)
 
                 const data = res.results;
 
-                // Populate fields
                 setCaseId(data.caseId);
                 setPartyId(data.partyId);
                 setCurrency(data.currency);
