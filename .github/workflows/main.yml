@@ -23,7 +23,7 @@ jobs:
           key: ${{ secrets.EC2_SSH_KEY }}
           port: 22
           timeout: 30s
-          command_timeout: 10m
+          command_timeout: 30m
           debug: true
           script: |
             # Navigate to project
