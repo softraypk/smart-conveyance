@@ -10,6 +10,7 @@ import CaseMortgageForm from "@/components/CaseMortgageForm";
 import PageLoader from "@/components/PageLoader";
 import {TrustHeader} from "@/components/TrustHeader";
 import ExceptionModal from "@/components/ExceptionModel";
+import CaseUpdateStatusModel from "@/components/CaseUpdateStatusModel";
 
 interface User {
     name: string;
@@ -57,6 +58,7 @@ export default function CasesPage() {
     const [open, setOpen] = useState(false);
     const [file, setFile] = useState<any>(null);
     const [openException, setOpenException] = useState<boolean>(false);
+    const [openUpdateStatus, setOpenUpdateStatus] = useState<boolean>(false);
 
     useEffect(() => {
         const storedUser = localStorage.getItem("user");
@@ -181,6 +183,11 @@ export default function CasesPage() {
 
     const handleException = (caseId: string) => {
         setOpenException(true);
+        setCaseId(caseId);
+    }
+
+    const handleUpdateStatus = (caseId: string) => {
+        setOpenUpdateStatus(true);
         setCaseId(caseId);
     }
 
@@ -316,6 +323,12 @@ export default function CasesPage() {
                                                     </td>
 
                                                     <td className="px-4 py-4">
+                                                        <button onClick={() => handleUpdateStatus(singleCase.id)}
+                                                                className="font-semibold text-primary hover:underline mr-3">
+                                                            <span
+                                                                className="material-symbols-outlined">published_with_changes</span>
+                                                        </button>
+
                                                         <button onClick={() => handleException(singleCase.id)}
                                                                 className="font-semibold text-primary hover:underline mr-3">
                                                             <span className="material-symbols-outlined">warning</span>
@@ -350,7 +363,7 @@ export default function CasesPage() {
                     </div>
                     {/* Modal */}
                     <ExceptionModal caseId={caseId} open={openException} onClose={() => setOpenException(false)}/>
-
+                    <CaseUpdateStatusModel caseId={caseId} open={openUpdateStatus} onClose={() => setOpenUpdateStatus(false)}/>/
                     {showModal && (
                         <div
                             className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm"
