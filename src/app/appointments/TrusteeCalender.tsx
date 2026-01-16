@@ -52,7 +52,6 @@ export default function TrusteeCalender({
             calendarMap[startDate].push(b);
         });
 
-        // Safety check for undefined complianceReadyCases
         (Array.isArray(complianceReadyCases) ? complianceReadyCases : []).forEach((c) => {
             const unassigned = "unassigned";
             if (!calendarMap[unassigned]) calendarMap[unassigned] = [];
@@ -61,7 +60,7 @@ export default function TrusteeCalender({
 
         setCalendarBookings(calendarMap);
         setLoading(false);
-    }, [bookings, complianceReadyCases]);
+    }, [bookings, complianceReadyCases, setLoading]);
 
     const prevMonth = () => {
         if (currentMonth === 0) setCurrentYear(currentYear - 1), setCurrentMonth(11);
@@ -105,6 +104,7 @@ export default function TrusteeCalender({
         );
     };
 
+    // ✅ Updated CalendarCell with proper ref handling for TypeScript
     const CalendarCell = ({
                               day,
                               dateKey,
@@ -116,7 +116,9 @@ export default function TrusteeCalender({
         trusteeOfficeId: string;
         repName: string;
     }) => {
-        const [{isOver}, drop] = useDrop(() => ({
+        const containerRef = useRef<HTMLDivElement | null>(null);
+
+        const [{isOver}, dropConnector] = useDrop(() => ({
             accept: "booking",
             drop: async (item: any) => {
                 setCalendarBookings((prev) => {
@@ -141,30 +143,34 @@ export default function TrusteeCalender({
                         method: "PUT",
                         body: JSON.stringify(payload),
                     });
-
-                    if (!response.ok) {
-                        toast.error("Failed to update booking date");
-                    }
+                    if (!response.ok) toast.error("Failed to update booking date");
                 } catch (err) {
-                    toast.error("Error saving booking");
+                    toast.error("Error saving booking: " + err);
                 }
             },
-            collect: (monitor) => ({
-                isOver: monitor.isOver(),
-            }),
+            collect: (monitor) => ({isOver: monitor.isOver()}),
         }));
+
+        // Attach dropConnector safely to the div
+        useEffect(() => {
+            // call dropConnector with the DOM node (or null to detach)
+            dropConnector(containerRef.current);
+            // detach on unmount (cleanup)
+            return () => {
+                dropConnector(null);
+            };
+        }, [dropConnector]);
 
         const bookingsForDay = calendarBookings[dateKey] || [];
 
         return (
             <div
-                ref={drop}   // ✅ CORRECT
+                ref={containerRef}
                 className={`relative min-h-[120px] bg-content-light dark:bg-content-dark
-                border-r border-b border-border-light dark:border-border-dark p-2 text-sm
-                ${isOver ? "bg-primary/20 dark:bg-primary/30" : ""}`}
+          border-r border-b border-border-light dark:border-border-dark p-2 text-sm
+          ${isOver ? "bg-primary/20 dark:bg-primary/30" : ""}`}
             >
                 <span className="font-bold">{day}</span>
-
                 <div className="mt-1 space-y-1">
                     {bookingsForDay.map((b: any) => (
                         <DraggableBooking key={b.id} booking={b}/>
@@ -190,8 +196,10 @@ export default function TrusteeCalender({
 
             for (let day = 1; day <= daysInMonth; day++) {
                 const dateKey = `${currentYear}-${String(currentMonth + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
-                cells.push(<CalendarCell key={day} day={day} dateKey={dateKey} trusteeOfficeId={selectedOffice}
-                                         repName={repName}/>);
+                cells.push(
+                    <CalendarCell key={day} day={day} dateKey={dateKey} trusteeOfficeId={selectedOffice}
+                                  repName={repName}/>
+                );
             }
 
             return cells;
@@ -231,8 +239,9 @@ export default function TrusteeCalender({
                         <div className="flex justify-between items-start mb-6">
                             <div>
                                 <h2 className="text-3xl font-bold">Trustee Office Booking Calendar</h2>
-                                <p className="text-text-muted-light dark:text-text-muted-dark mt-1">Book slots for ready
-                                    cases by dragging them onto the calendar.</p>
+                                <p className="text-text-muted-light dark:text-text-muted-dark mt-1">
+                                    Book slots for ready cases by dragging them onto the calendar.
+                                </p>
                             </div>
 
                             <div
@@ -261,7 +270,6 @@ export default function TrusteeCalender({
                                     Month
                                 </button>
                             </div>
-
                         </div>
 
                         <div className="bg-content-light dark:bg-content-dark p-6 rounded-lg shadow-sm">
@@ -269,14 +277,17 @@ export default function TrusteeCalender({
                                 <div className="flex items-center gap-4">
                                     <select
                                         className="flex items-center gap-2 px-5 py-3 rounded border border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark text-sm font-medium"
-                                        value={selectedOffice} onChange={(e) => setSelectedOffice(e.target.value)}>
+                                        value={selectedOffice}
+                                        onChange={(e) => setSelectedOffice(e.target.value)}
+                                    >
                                         {trusteeOffice.map((t: any) => (
                                             <option key={t.id} value={t.name}>{t.name}</option>
                                         ))}
                                     </select>
                                     <input
                                         className="flex items-center gap-2 px-5 py-3 rounded border border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark text-sm font-medium"
-                                        value={repName} onChange={(e) => setRepName(e.target.value)}
+                                        value={repName}
+                                        onChange={(e) => setRepName(e.target.value)}
                                     />
                                 </div>
 
