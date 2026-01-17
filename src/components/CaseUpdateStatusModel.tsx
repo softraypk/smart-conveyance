@@ -53,6 +53,7 @@ export default function CaseUpdateStatusModel({caseId, open, onClose}: Props) {
 
             if (response.ok) {
                 toast.success(response.results?.message);
+                onClose();
             } else {
                 toast.error(response.results?.message)
             }

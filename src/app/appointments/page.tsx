@@ -33,7 +33,7 @@ export default function Appointments() {
                 }
 
                 if (casesResp.ok) {
-                    setComplianceReadyCases(casesResp.results || []);
+                    setComplianceReadyCases(casesResp.results?.data?.cases || []);
                 } else {
                     toast.error("Error: " + casesResp.results?.message);
                 }
