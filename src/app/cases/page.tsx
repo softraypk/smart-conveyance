@@ -169,11 +169,10 @@ export default function CasesPage() {
 
             if (!res.ok) {
                 toast.error("Error while uploading case");
-                throw new Error("Upload failed");
             }
 
-
             toast.success("Success: " + res.results.message)
+            setOpen(false)
 
         } catch (err) {
             console.error(err);
@@ -323,6 +322,14 @@ export default function CasesPage() {
                                                     </td>
 
                                                     <td className="px-4 py-4">
+
+                                                        <button onClick={() => handleOpenModel(singleCase.id)}
+                                                                className="font-semibold text-primary hover:underline mr-3">
+                                                            <span
+                                                                className="material-symbols-outlined">cloud_upload</span>
+                                                        </button>
+
+
                                                         <button onClick={() => handleUpdateStatus(singleCase.id)}
                                                                 className="font-semibold text-primary hover:underline mr-3">
                                                             <span
@@ -363,7 +370,141 @@ export default function CasesPage() {
                     </div>
                     {/* Modal */}
                     <ExceptionModal caseId={caseId} open={openException} onClose={() => setOpenException(false)}/>
-                    <CaseUpdateStatusModel caseId={caseId} open={openUpdateStatus} onClose={() => setOpenUpdateStatus(false)}/>/
+                    <CaseUpdateStatusModel caseId={caseId} open={openUpdateStatus}
+                                           onClose={() => setOpenUpdateStatus(false)}/>/
+                    {/* MODAL BACKDROP */}
+                    {open && (
+                        <div
+                            className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50">
+
+                            {/* MODAL CARD */}
+                            <form onSubmit={uploadDocument}
+                                  className="bg-white dark:bg-background-dark p-8 rounded-xl shadow-xl w-full max-w-lg space-y-8 relative">
+
+                                {/* CLOSE BUTTON */}
+                                <button
+                                    onClick={() => setOpen(false)}
+                                    className="absolute top-3 right-3 text-gray-600 dark:text-gray-300 hover:text-primary"
+                                >
+                                    <span className="material-symbols-outlined">close</span>
+                                </button>
+
+                                {/* ---------------- YOUR CONTENT BELOW ---------------- */}
+
+                                <div>
+                                    <h2 className="text-3xl font-extrabold text-center text-gray-900 dark:text-white">
+                                        Final Deed &amp; Supporting Pack
+                                    </h2>
+                                    <p className="mt-2 text-center text-sm text-gray-600 dark:text-gray-400">
+                                        Upload the final documents to complete the case.
+                                    </p>
+                                </div>
+
+                                <div
+                                    className="bg-white dark:bg-background-dark/50 p-8 rounded-lg shadow-md space-y-6">
+
+                                    {/* FILE UPLOAD -------------------------- */}
+                                    <div>
+                                        <label
+                                            htmlFor="file-upload"
+                                            className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+                                        >
+                                            Final Deed Pack (PDF/ZIP)
+                                        </label>
+
+                                        <label
+                                            htmlFor="file-upload"
+                                            className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300
+                                    dark:border-gray-600 border-dashed rounded-md cursor-pointer
+                                    hover:border-primary/70 dark:hover:border-primary/50 transition-colors"
+                                        >
+                                            <div className="space-y-1 text-center">
+                                        <span
+                                            className="material-symbols-outlined text-4xl text-gray-400 dark:text-gray-500">
+                                            cloud_upload
+                                        </span>
+                                                <div
+                                                    className="flex text-sm text-gray-600 dark:text-gray-400">
+                                                    <p className="pl-1">
+                                                        Drag and drop or{" "}
+                                                        <span
+                                                            className="text-primary font-semibold">click to upload</span>
+                                                    </p>
+                                                </div>
+                                                <p className="text-xs text-gray-500 dark:text-gray-400">
+                                                    PDF, ZIP up to 50MB
+                                                </p>
+                                                {/* Show attached file */}
+                                                {file && (
+                                                    <div
+                                                        className="text-sm text-green-600 flex items-center gap-2">
+                                                                        <span
+                                                                            className="material-symbols-outlined text-base">attach_file</span>
+                                                        {file?.name}
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </label>
+
+                                        <input
+                                            onChange={handleFileChange}
+                                            id="file-upload" name="file-upload" type="file"
+                                            className="sr-only"/>
+                                    </div>
+
+                                    {/* DEED ID -------------------------- */}
+                                    <div className="mt-1 relative">
+                                        <span
+                                            className="absolute inset-y-0 left-0 flex items-center pl-3">
+                                            <span
+                                                className="material-symbols-outlined text-gray-500 dark:text-gray-400 text-[20px]">
+                                                confirmation_number
+                                            </span>
+                                        </span>
+
+                                        <input
+                                            id="deed-id"
+                                            name="deed-id"
+                                            type="text"
+                                            placeholder="Enter Deed ID"
+                                            className="block w-full pl-10 pr-3 py-3 rounded-md bg-background-light dark:bg-background-dark border border-gray-300 dark:border-gray-700 placeholder-gray-500 dark:placeholder-gray-400 focus:ring-primary focus:border-primary sm:text-sm"
+                                        />
+                                    </div>
+
+
+                                    {/* DATE ISSUED -------------------------- */}
+                                    <div className="mt-1 relative">
+                                        <span
+                                            className="absolute inset-y-0 left-0 flex items-center pl-3">
+                                            <span
+                                                className="material-symbols-outlined text-gray-500 dark:text-gray-400 text-[20px]">
+                                                event
+                                            </span>
+                                        </span>
+                                        <input
+                                            id="date-issued"
+                                            name="date-issued"
+                                            type="date"
+                                            className="block w-full pl-10 pr-3 py-3 rounded-md bg-background-light dark:bg-background-dark border border-gray-300 dark:border-gray-700 focus:ring-primary focus:border-primary sm:text-sm"
+                                        />
+                                    </div>
+
+
+                                    {/* SAVE BUTTON -------------------------- */}
+                                    <button
+                                        type="submit"
+                                        className="w-full flex justify-center py-3 px-4 rounded-md shadow-sm
+                                text-sm font-medium text-white bg-primary hover:bg-primary/90
+                                focus:outline-none focus:ring-2 focus:ring-offset-2
+                                focus:ring-primary transition-colors"
+                                    >
+                                        Save
+                                    </button>
+
+                                </div>
+                            </form>
+                        </div>
+                    )}
                     {showModal && (
                         <div
                             className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm"
@@ -1087,8 +1228,40 @@ export default function CasesPage() {
                                                         {dayjs(singlecase.createdAt).format("MMM DD, YYYY hh:mm A") || "-"}
                                                     </td>
                                                     <td className="px-4 py-4">
-                                                        <button className="font-semibold text-primary hover:underline">
-                                                            View
+                                                        <button onClick={() => handleOpenModel(singlecase.id)}
+                                                                className="font-semibold text-primary hover:underline mr-3">
+                                                            <span
+                                                                className="material-symbols-outlined">cloud_upload</span>
+                                                        </button>
+
+
+                                                        {/*<button onClick={() => handleUpdateStatus(singlecase.id)}*/}
+                                                        {/*        className="font-semibold text-primary hover:underline mr-3">*/}
+                                                        {/*    <span*/}
+                                                        {/*        className="material-symbols-outlined">published_with_changes</span>*/}
+                                                        {/*</button>*/}
+
+                                                        <button onClick={() => handleException(singlecase.id)}
+                                                                className="font-semibold text-primary hover:underline mr-3">
+                                                            <span className="material-symbols-outlined">warning</span>
+                                                        </button>
+
+                                                        {/*<button onClick={() => handleInvite(singlecase)}*/}
+                                                        {/*        className="font-semibold text-primary hover:underline mr-3">*/}
+                                                        {/*    <span*/}
+                                                        {/*        className="material-symbols-outlined">person_add</span>*/}
+                                                        {/*</button>*/}
+
+                                                        {/*<button onClick={() => router.push(`/cases/${singlecase.id}`)}*/}
+                                                        {/*        className="font-semibold text-primary hover:underline mr-3">*/}
+                                                        {/*    <span className="material-symbols-outlined">edit</span>*/}
+                                                        {/*</button>*/}
+
+                                                        <button
+                                                            onClick={() => router.push(`/cases/${singlecase.id}/show`)}
+                                                            className="font-semibold text-primary hover:underline">
+                                                            <span
+                                                                className="material-symbols-outlined">visibility</span>
                                                         </button>
                                                     </td>
                                                 </tr>
@@ -1098,6 +1271,232 @@ export default function CasesPage() {
                                 </div>
                             </div>
                         </div>
+                        {/* Modal */}
+                        <ExceptionModal caseId={caseId} open={openException} onClose={() => setOpenException(false)}/>
+                        <CaseUpdateStatusModel caseId={caseId} open={openUpdateStatus}
+                                               onClose={() => setOpenUpdateStatus(false)}/>/
+                        {/* MODAL BACKDROP */}
+                        {open && (
+                            <div
+                                className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50">
+
+                                {/* MODAL CARD */}
+                                <form onSubmit={uploadDocument}
+                                      className="bg-white dark:bg-background-dark p-8 rounded-xl shadow-xl w-full max-w-lg space-y-8 relative">
+
+                                    {/* CLOSE BUTTON */}
+                                    <button
+                                        onClick={() => setOpen(false)}
+                                        className="absolute top-3 right-3 text-gray-600 dark:text-gray-300 hover:text-primary"
+                                    >
+                                        <span className="material-symbols-outlined">close</span>
+                                    </button>
+
+                                    {/* ---------------- YOUR CONTENT BELOW ---------------- */}
+
+                                    <div>
+                                        <h2 className="text-3xl font-extrabold text-center text-gray-900 dark:text-white">
+                                            Final Deed &amp; Supporting Pack
+                                        </h2>
+                                        <p className="mt-2 text-center text-sm text-gray-600 dark:text-gray-400">
+                                            Upload the final documents to complete the case.
+                                        </p>
+                                    </div>
+
+                                    <div
+                                        className="bg-white dark:bg-background-dark/50 p-8 rounded-lg shadow-md space-y-6">
+
+                                        {/* FILE UPLOAD -------------------------- */}
+                                        <div>
+                                            <label
+                                                htmlFor="file-upload"
+                                                className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+                                            >
+                                                Final Deed Pack (PDF/ZIP)
+                                            </label>
+
+                                            <label
+                                                htmlFor="file-upload"
+                                                className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300
+                                    dark:border-gray-600 border-dashed rounded-md cursor-pointer
+                                    hover:border-primary/70 dark:hover:border-primary/50 transition-colors"
+                                            >
+                                                <div className="space-y-1 text-center">
+                                        <span
+                                            className="material-symbols-outlined text-4xl text-gray-400 dark:text-gray-500">
+                                            cloud_upload
+                                        </span>
+                                                    <div
+                                                        className="flex text-sm text-gray-600 dark:text-gray-400">
+                                                        <p className="pl-1">
+                                                            Drag and drop or{" "}
+                                                            <span
+                                                                className="text-primary font-semibold">click to upload</span>
+                                                        </p>
+                                                    </div>
+                                                    <p className="text-xs text-gray-500 dark:text-gray-400">
+                                                        PDF, ZIP up to 50MB
+                                                    </p>
+                                                    {/* Show attached file */}
+                                                    {file && (
+                                                        <div
+                                                            className="text-sm text-green-600 flex items-center gap-2">
+                                                                        <span
+                                                                            className="material-symbols-outlined text-base">attach_file</span>
+                                                            {file?.name}
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            </label>
+
+                                            <input
+                                                onChange={handleFileChange}
+                                                id="file-upload" name="file-upload" type="file"
+                                                className="sr-only"/>
+                                        </div>
+
+                                        {/* DEED ID -------------------------- */}
+                                        <div className="mt-1 relative">
+                                        <span
+                                            className="absolute inset-y-0 left-0 flex items-center pl-3">
+                                            <span
+                                                className="material-symbols-outlined text-gray-500 dark:text-gray-400 text-[20px]">
+                                                confirmation_number
+                                            </span>
+                                        </span>
+
+                                            <input
+                                                id="deed-id"
+                                                name="deed-id"
+                                                type="text"
+                                                placeholder="Enter Deed ID"
+                                                className="block w-full pl-10 pr-3 py-3 rounded-md bg-background-light dark:bg-background-dark border border-gray-300 dark:border-gray-700 placeholder-gray-500 dark:placeholder-gray-400 focus:ring-primary focus:border-primary sm:text-sm"
+                                            />
+                                        </div>
+
+
+                                        {/* DATE ISSUED -------------------------- */}
+                                        <div className="mt-1 relative">
+                                        <span
+                                            className="absolute inset-y-0 left-0 flex items-center pl-3">
+                                            <span
+                                                className="material-symbols-outlined text-gray-500 dark:text-gray-400 text-[20px]">
+                                                event
+                                            </span>
+                                        </span>
+                                            <input
+                                                id="date-issued"
+                                                name="date-issued"
+                                                type="date"
+                                                className="block w-full pl-10 pr-3 py-3 rounded-md bg-background-light dark:bg-background-dark border border-gray-300 dark:border-gray-700 focus:ring-primary focus:border-primary sm:text-sm"
+                                            />
+                                        </div>
+
+
+                                        {/* SAVE BUTTON -------------------------- */}
+                                        <button
+                                            type="submit"
+                                            className="w-full flex justify-center py-3 px-4 rounded-md shadow-sm
+                                text-sm font-medium text-white bg-primary hover:bg-primary/90
+                                focus:outline-none focus:ring-2 focus:ring-offset-2
+                                focus:ring-primary transition-colors"
+                                        >
+                                            Save
+                                        </button>
+
+                                    </div>
+                                </form>
+                            </div>
+                        )}
+                        {showModal && (
+                            <div
+                                className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm"
+                            >
+                                {/* Modal content */}
+                                <div
+                                    className="w-full max-w-2xl mx-auto bg-white dark:bg-background-dark/50 rounded-2xl shadow-2xl p-2 space-y-4 border border-zinc-200 dark:border-zinc-800 relative"
+                                >
+                                    {/* Close button */}
+                                    <button
+                                        onClick={() => setShowModal(false)}
+                                        className="absolute top-3 right-3 text-zinc-500 hover:text-zinc-800 dark:hover:text-white text-2xl font-bold"
+                                    >
+                                        ×
+                                    </button>
+
+                                    <div className="space-y-4 text-center">
+                                        <h1 className="text-4xl font-bold text-zinc-900 dark:text-zinc-50 mt-6">
+                                            Invite Mortgage Broker
+                                        </h1>
+                                        <p className="text-zinc-500 dark:text-zinc-400 text-lg">
+                                            Enter the details below to send an invitation.
+                                        </p>
+                                    </div>
+
+                                    <CaseMortgageForm
+                                        caseId={caseId}
+                                        mortgageToEdit={mortgageToEdit}
+                                        onSuccess={(mortgage: Mortgage) => handleFormSuccess(mortgage)}
+                                    />
+
+                                    {/* 🧩 Buyer Table */}
+                                    <div
+                                        className="mt-6 overflow-x-auto rounded-lg border border-gray-200 dark:border-gray-700">
+                                        {loading ? (
+                                            <p className="p-6 text-sm text-gray-500 dark:text-gray-400">
+                                                Loading buyers...
+                                            </p>
+                                        ) : (
+                                            <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                                                <thead className="bg-gray-50 dark:bg-gray-800">
+                                                <tr>
+                                                    <th className="px-6 py-3 text-left text-sm font-semibold text-gray-600 dark:text-gray-300">#</th>
+                                                    <th className="px-6 py-3 text-left text-sm font-semibold text-gray-600 dark:text-gray-300">Email</th>
+                                                    <th className="px-6 py-3 text-left text-sm font-semibold text-gray-600 dark:text-gray-300">Name</th>
+                                                    <th className="px-6 py-3 text-left text-sm font-semibold text-gray-600 dark:text-gray-300">Phone</th>
+                                                    <th className="px-6 py-3 text-left text-sm font-semibold text-gray-600 dark:text-gray-300">Actions</th>
+                                                </tr>
+                                                </thead>
+                                                <tbody
+                                                    className="bg-white dark:bg-slate-800 divide-y divide-gray-100 dark:divide-gray-700">
+                                                {mortgages.length > 0 ? (
+                                                    mortgages.map((mortgage: Mortgage, index: number) => (
+                                                        <tr key={mortgage.id}>
+                                                            <td className="px-6 py-4 text-sm text-gray-700 dark:text-gray-200">{index + 1}</td>
+                                                            <td className="px-6 py-4 text-sm text-gray-700 dark:text-gray-200">
+                                                                {mortgage.user.email || "—"}
+                                                            </td>
+                                                            <td className="px-6 py-4 text-sm text-gray-700 dark:text-gray-200">
+                                                                {mortgage.name || "—"}
+                                                            </td>
+                                                            <td className="px-6 py-4 text-sm text-gray-700 dark:text-gray-200">
+                                                                {mortgage.phone || "—"}
+                                                            </td>
+                                                            <td className="px-6 py-4 text-sm text-gray-700 dark:text-gray-200">
+                                                                <button
+                                                                    onClick={() => handleEdit(mortgage)}
+                                                                    className="text-blue-600 hover:underline"
+                                                                >
+                                                                    Edit
+                                                                </button>
+                                                            </td>
+                                                        </tr>
+                                                    ))
+                                                ) : (
+                                                    <tr>
+                                                        <td colSpan={5}
+                                                            className="px-6 py-4 text-center text-sm text-gray-500 dark:text-gray-400">
+                                                            No Mortgage found
+                                                        </td>
+                                                    </tr>
+                                                )}
+                                                </tbody>
+                                            </table>
+                                        )}
+                                    </div>
+                                </div>
+                            </div>
+                        )}
                     </main>
                 </div>
             </div>

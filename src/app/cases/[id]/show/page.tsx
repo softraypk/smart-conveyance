@@ -7,21 +7,39 @@ import {useParams} from "next/navigation";
 import Sidebar from "@/components/Sidebar";
 import PageLoader from "@/components/PageLoader";
 
+interface User {
+    name: string;
+    email: string;
+    role?: string;
+    managedOrgId?: string;
+}
+
 export default function ShowCasePage() {
-    const [booking, setBooking] = useState<any>("");
     const [selectCase, setSelectCase] = useState<any>("");
     const [checklistItems, setChecklistItems] = useState<any>([]);
     const [documents, setDocuments] = useState([]);
     const [loading, setLoading] = useState<boolean>(true);
-
+    const [user, setUser] = useState<User | null>(null);
 
     const params = useParams();
     const caseId = params.id;
 
+    useEffect(() => {
+        const storedUser = localStorage.getItem("user");
+        if (storedUser) {
+            try {
+                setUser(JSON.parse(storedUser));
+            } catch (err) {
+                console.error("Failed to parse user from localStorage:", err);
+                localStorage.removeItem("user");
+            }
+        }
+    }, []);
+
     // Load Case
     useEffect(() => {
         if (!caseId) return;
-
+        setLoading(true);
         const listCase = async () => {
             try {
                 const response = await api(`/cases/${caseId}`, {method: "GET"});
@@ -38,8 +56,9 @@ export default function ShowCasePage() {
                 }
             } catch (e) {
                 toast.error("Error: " + e);
+            } finally {
+                setLoading(false);
             }
-
         }
         listCase();
     }, [caseId]);
@@ -68,15 +87,14 @@ export default function ShowCasePage() {
     // };
 
 
-    if (loading && !selectCase && !booking) {
+    if (loading && !selectCase) {
         return (
             <PageLoader/>
         )
     }
 
-
     return (
-        <div className="flex flex-col min-h-screen">
+        <div className={user?.role === "SC_ADMIN" ? "flex min-h-screen" : "flex flex-col min-h-screen"}>
             <Sidebar/>
             <main className="flex-grow container mx-auto px-6 py-10">
                 <div className="max-w-4xl mx-auto">

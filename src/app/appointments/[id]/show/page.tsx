@@ -6,6 +6,7 @@ import toast from "react-hot-toast";
 import {useParams} from "next/navigation";
 import Sidebar from "@/components/Sidebar";
 import PageLoader from "@/components/PageLoader";
+import {TrustHeader} from "@/components/TrustHeader";
 
 export default function ShowAppointmentPage() {
     const [booking, setBooking] = useState<any>("");
@@ -77,7 +78,7 @@ export default function ShowAppointmentPage() {
 
     return (
         <div className="flex flex-col min-h-screen">
-            <Sidebar/>
+            <TrustHeader/>
             <main className="flex-grow container mx-auto px-6 py-10">
                 <div className="max-w-4xl mx-auto">
                     <div className="mb-8">

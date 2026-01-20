@@ -20,6 +20,7 @@ export default function DashboardsPage() {
     const [user, setUser] = useState<User | null>(null);
     const [loading, setLoading] = useState<boolean>(false);
     const [exceptions, setExceptions] = useState<any[]>([]);
+    const [bookings, setBookings] = useState<any[]>([]);
 
     useEffect(() => {
         const storedUser = localStorage.getItem("user");
@@ -33,7 +34,34 @@ export default function DashboardsPage() {
         }
     }, []);
 
+    // Load bookings
     useEffect(() => {
+        if (user?.role === "TRUSTEE") return;
+        const listBookings = async () => {
+            try {
+                setLoading(true);
+                setLoading?.(true); // optional parent loader
+                const response = await api(`/bookings`, {method: "GET"});
+
+                if (response.ok) {
+                    const fetchedBookings = response.results?.data?.bookings || [];
+                    setBookings(fetchedBookings);
+                } else {
+                    toast.error("Error: " + response.results?.message);
+                }
+            } catch (e) {
+                toast.error("Error: " + e);
+            } finally {
+                setLoading(false);
+                setLoading?.(false); // hide parent loader
+            }
+        };
+        listBookings();
+    }, []);
+
+    useEffect(() => {
+        if (user?.role !== "ORG_ADMIN") return;
+
         const listCaseException = async () => {
             try {
                 setLoading(true); // optional, only if you want parent loader
@@ -70,7 +98,7 @@ export default function DashboardsPage() {
         case "BROKER":
             return <MorgAdmin setLoading={setLoading}/>;
         case "TRUSTEE":
-            return <TrustAdmin setLoading={setLoading}/>;
+            return <TrustAdmin bookings={bookings}/>;
         default:
             return <SCAdmin setLoading={setLoading}/>;
     }

@@ -22,57 +22,16 @@ const getWeekStart = (date: Date) => {
 };
 
 interface AppointmentFormProps {
-    setLoading: React.Dispatch<React.SetStateAction<boolean>>;
+    bookings: (any | null)[]
 }
 
-export default function TrustAdmin({setLoading}: AppointmentFormProps) {
-    const [bookings, setBookings] = useState<any[]>([]);
+export default function TrustAdmin({bookings}: AppointmentFormProps) {
     const [currentMonth, setCurrentMonth] = useState(new Date().getMonth());
     const [currentYear, setCurrentYear] = useState(new Date().getFullYear());
     const [selectedOffice, setSelectedOffice] = useState("Al Tamimi & Co");
     const [repName, setRepName] = useState("");
     const [viewMode, setViewMode] = useState<"month" | "week">("month"); // <-- view mode
     const [calendarBookings, setCalendarBookings] = useState<{ [key: string]: any[] }>({});
-    const [loadingLocal, setLoadingLocal] = useState(true);
-
-
-    // Load bookings
-    useEffect(() => {
-        const listBookings = async () => {
-            try {
-                setLoadingLocal(true);
-                setLoading?.(true); // optional parent loader
-                const response = await api(`/bookings`, {method: "GET"});
-
-                if (response.ok) {
-                    const fetchedBookings = response.results?.data?.bookings || [];
-                    setBookings(fetchedBookings);
-
-                    // Build calendar mapping by date
-                    const calendarMap: { [key: string]: any[] } = {};
-
-                    fetchedBookings.forEach((b: any) => {
-                        const startDate = b.slot?.start?.substring(0, 10); // Extract YYYY-MM-DD
-
-                        if (startDate) {
-                            if (!calendarMap[startDate]) calendarMap[startDate] = [];
-                            calendarMap[startDate].push(b);
-                        }
-                    });
-
-                    setCalendarBookings(calendarMap);
-                } else {
-                    toast.error("Error: " + response.results?.message);
-                }
-            } catch (e) {
-                toast.error("Error: " + e);
-            } finally {
-                setLoadingLocal(false);
-                setLoading?.(false); // hide parent loader
-            }
-        };
-        listBookings();
-    }, []);
 
     const prevMonth = () => {
         if (currentMonth === 0) setCurrentYear(currentYear - 1), setCurrentMonth(11);
@@ -82,6 +41,22 @@ export default function TrustAdmin({setLoading}: AppointmentFormProps) {
         if (currentMonth === 11) setCurrentYear(currentYear + 1), setCurrentMonth(0);
         else setCurrentMonth(currentMonth + 1);
     };
+
+    useEffect(() => {
+        // Build calendar mapping by date
+        const calendarMap: { [key: string]: any[] } = {};
+
+        bookings.forEach((b: any) => {
+            const startDate = b.slot?.start?.substring(0, 10); // Extract YYYY-MM-DD
+
+            if (startDate) {
+                if (!calendarMap[startDate]) calendarMap[startDate] = [];
+                calendarMap[startDate].push(b);
+            }
+        });
+
+        setCalendarBookings(calendarMap);
+    }, [bookings]);
 
     const BookingItem = ({booking}: { booking: any }) => {
         const router = useRouter();
@@ -94,6 +69,9 @@ export default function TrustAdmin({setLoading}: AppointmentFormProps) {
             : seller
                 ? `Seller: ${seller.name}`
                 : "N/A";
+
+
+        console.log(booking);
 
         return (
             <div
