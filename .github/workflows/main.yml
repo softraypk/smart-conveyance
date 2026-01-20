@@ -41,7 +41,7 @@ jobs:
             npm run build
 
             echo "Restarting PM2 process..."
-            pm2 restart smartconveyance || pm2 start npm --name "smartconveyance" -- start
+            pm2 restart smartconveyance.ae || pm2 start npm --name "smartconveyance.ae" -- start
             pm2 save
 
             echo "✅ Deployment completed!"
