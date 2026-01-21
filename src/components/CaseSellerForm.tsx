@@ -16,11 +16,12 @@ interface Seller {
 
 interface CaseSellerFormProps {
     caseId: string;
+    orgId: number | null;
     sellerToEdit: Seller | null;
     onSuccess: () => void;
 }
 
-export default function CaseSellerForm({caseId, sellerToEdit, onSuccess}: CaseSellerFormProps) {
+export default function CaseSellerForm({caseId, orgId, sellerToEdit, onSuccess}: CaseSellerFormProps) {
     const [role] = useState("SELLER");
     const [name, setName] = useState("");
     const [email, setEmail] = useState("");
@@ -29,12 +30,18 @@ export default function CaseSellerForm({caseId, sellerToEdit, onSuccess}: CaseSe
     const [error, setError] = useState('')
 
     const [results, setResults] = useState<any[]>([]);
+    const [suppressSearch, setSuppressSearch] = useState(false);
 
 
     console.log(caseId)
 
     // 🧠 Debounce user typing (avoid too many requests)
     useEffect(() => {
+        if (suppressSearch) {
+            setSuppressSearch(false); // reset the flag
+            return; // skip searching
+        }
+
         const timeout = setTimeout(() => {
             if (email.length >= 3) {
                 searchParties(email);
@@ -44,7 +51,8 @@ export default function CaseSellerForm({caseId, sellerToEdit, onSuccess}: CaseSe
         }, 400);
 
         return () => clearTimeout(timeout);
-    }, [email]);
+    }, [email, suppressSearch]);
+
 
     const searchParties = async (email: string) => {
         setLoading(true);
@@ -59,7 +67,7 @@ export default function CaseSellerForm({caseId, sellerToEdit, onSuccess}: CaseSe
         }
 
         try {
-            const response = await api(`/users/search/USER?email=${encodeURIComponent(email)}`, {
+            const response = await api(`/users/search/USER?email=${encodeURIComponent(email)}&orgId=${orgId}`, {
                 method: "GET",
             });
 
@@ -150,9 +158,13 @@ export default function CaseSellerForm({caseId, sellerToEdit, onSuccess}: CaseSe
                                 <li
                                     key={item.id || item.email}
                                     className="p-2 hover:bg-gray-100 cursor-pointer"
-                                    onClick={() => {
+                                    onClick={(e) => {
+                                        e.preventDefault();
                                         setEmail(item.email);
-                                        setResults([]); // 👈 hide dropdown after selection
+                                        setName(item.name || "");
+                                        setPhoneNumber(item.phone || "");
+                                        setResults([]);
+                                        setSuppressSearch(true); // prevent immediate re-search
                                     }}
                                 >
                                     <div className="font-medium">{item.email}</div>

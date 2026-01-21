@@ -22,6 +22,7 @@ interface Buyer {
 export default function BuyerPage() {
     const params = useParams();
     const caseId = params?.id as string | undefined;
+    const [orgId, setOrgId] = useState<number | null>(null);
 
     console.log(caseId);
 
@@ -42,6 +43,8 @@ export default function BuyerPage() {
             const response = await api(`/cases/${caseId}`, {method: "GET"});
 
             const data = response?.results?.data;
+
+            setOrgId(data?.orgId);
 
             const buyerParties = Array.isArray(data?.parties)
                 ? data.parties.filter((p: any) => p.role === "BUYER")
@@ -111,6 +114,7 @@ export default function BuyerPage() {
                                 {/* ✅ Pass buyerToEdit and callback to form */}
                                 <CaseBuyerForm
                                     caseId={caseId}
+                                    orgId={orgId}
                                     buyerToEdit={buyerToEdit}
                                     onSuccess={handleFormSuccess}
                                 />
