@@ -79,7 +79,8 @@ export default function CasesPage() {
 
     const listCases = async ({
                                  pageNumber = 1,
-                                 pageSize = 10
+                                 pageSize = 10,
+                                 statusFilter = ""
                              }) => {
         setLoading(true);
 
@@ -112,8 +113,8 @@ export default function CasesPage() {
 
 
     useEffect(() => {
-        listCases({pageNumber, pageSize});
-    }, [pageNumber, pageSize]);
+        listCases({pageNumber, pageSize, statusFilter});
+    }, [pageNumber, pageSize, statusFilter]);
 
 
     const fetchExistingMortgage = async (singlecase: SingleCase) => {
