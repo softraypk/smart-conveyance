@@ -11,6 +11,7 @@ import PageLoader from "@/components/PageLoader";
 import {TrustHeader} from "@/components/TrustHeader";
 import ExceptionModal from "@/components/ExceptionModel";
 import CaseUpdateStatusModel from "@/components/CaseUpdateStatusModel";
+import Pagination from "@/components/Pagination";
 
 interface User {
     name: string;
@@ -54,6 +55,11 @@ export default function CasesPage() {
     const router = useRouter();
     const [user, setUser] = useState<User | null>(null);
     const [cases, setCases] = useState<any[]>([]);
+    const [pageNumber, setPageNumber] = useState(1);
+    const [pageSize, sePageSize] = useState(10);
+    const [totalPages, setTotalPages] = useState(1);
+    const [totalRecords, setTotalRecords] = useState(0);
+    const [statusFilter, setStatusFilter] = useState<string>("");
     const [loading, setLoading] = useState(false);
     const [open, setOpen] = useState(false);
     const [file, setFile] = useState<any>(null);
@@ -72,29 +78,46 @@ export default function CasesPage() {
         }
     }, []);
 
-    useEffect(() => {
-        const listCases = async () => {
-            setLoading(true);
-            try {
-                const response = await api("/cases", {method: "GET"});
+    const listCases = async ({
+                                 pageNumber = 1,
+                                 pageSize = 10,
+                                 statusFilter = "",
+                                 mortgageStatus = "NA",
+                             }) => {
+        setLoading(true);
 
-                // ⚠️ Ensure correct response structure
-                if (response.ok) {
-                    const data = response.results?.data.cases;
-                    setCases(Array.isArray(data) ? data : []);
-                } else {
-                    toast.error("Failed to load: " + (response?.results.message || "Unknown error"));
-                }
-            } catch (error) {
-                console.error("Failed to connect:", error);
-                toast.error("Network error while fetching cases");
-            } finally {
-                setLoading(false);
+        try {
+            let query = `pageNumber=${pageNumber}&pageSize=${pageSize}&mortgageStatus=${mortgageStatus}`;
+
+            if (statusFilter) {
+                query += `&statusFilter=${encodeURIComponent(statusFilter)}`;
             }
-        };
 
-        listCases();
-    }, []);
+            const response = await api(`/cases?${query}`, {
+                method: "GET",
+            });
+
+            if (response?.ok) {
+                setCases(response?.results?.data?.cases || []);
+                setTotalPages(response?.results?.data?.meta?.totalPages || 1);
+                setPageNumber(response?.results?.data?.meta?.pageNumber || 1);
+                sePageSize(response?.results?.data?.meta?.pageSize || 1);
+            } else {
+                toast.error(response?.results?.message || "Failed to load cases");
+            }
+        } catch (error) {
+            console.error(error);
+            toast.error("Network error");
+        } finally {
+            setLoading(false);
+        }
+    };
+
+
+    useEffect(() => {
+        listCases({pageNumber, pageSize, statusFilter});
+    }, [pageNumber, pageSize, statusFilter]);
+
 
     const fetchExistingMortgage = async (singlecase: SingleCase) => {
         setLoading(true);
@@ -244,12 +267,22 @@ export default function CasesPage() {
                                 </div>
                                 <div>
                                     <select
-                                        className="w-full px-4 py-2 rounded-lg border border-subtle-light dark:border-subtle-dark bg-background-light dark:bg-background-dark focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-shadow">
-                                        <option>Status: All</option>
-                                        <option>In Progress</option>
-                                        <option>Completed</option>
-                                        <option>Pending</option>
+                                        value={statusFilter}
+                                        onChange={(e) => {
+                                            setStatusFilter(e.target.value);
+                                            setPageNumber(1); // reset pagination
+                                        }}
+                                        className="w-full px-4 py-2 rounded-lg border"
+                                    >
+                                        <option value="NA">All STATUS</option>
+                                        <option value="DRAFT">DRAFT</option>
+                                        <option value="OFFERING">OFFERING</option>
+                                        <option value="AGREED">AGREED</option>
+                                        <option value="COMPLIANCE_READY">COMPLIANCE READY</option>
+                                        <option value="TRUSTEE_BOOKED">TRUSTEE BOOKED</option>
+                                        <option value="FINALIZED">FINALIZED</option>
                                     </select>
+
                                 </div>
                                 <div>
                                     <input
@@ -261,6 +294,11 @@ export default function CasesPage() {
 
                             {/* Table */}
                             <div className="overflow-x-auto">
+                                <Pagination
+                                    pageNumber={pageNumber}
+                                    totalPages={totalPages}
+                                    onPageChange={setPageNumber}
+                                />
                                 <table className="w-full text-sm">
                                     <thead>
                                     <tr className="border-b border-subtle-light dark:border-subtle-dark">
@@ -301,7 +339,7 @@ export default function CasesPage() {
                                                     key={singleCase.id}
                                                     className="border-b border-subtle-light dark:border-subtle-dark hover:bg-background-light dark:hover:bg-background-dark/50 transition-colors"
                                                 >
-                                                    <td className="px-4 py-4 font-medium">{singleCase.id}</td>
+                                                    <td className="px-4 py-4 font-medium">{singleCase.id.split("-").pop()}</td>
                                                     <td className="px-4 py-4 text-muted-light dark:text-muted-dark">
                                                         {singleCase?.property?.community || "-"}
                                                     </td>
@@ -365,6 +403,11 @@ export default function CasesPage() {
                                     )}
                                     </tbody>
                                 </table>
+                                <Pagination
+                                    pageNumber={pageNumber}
+                                    totalPages={totalPages}
+                                    onPageChange={setPageNumber}
+                                />
                             </div>
                         </div>
                     </div>

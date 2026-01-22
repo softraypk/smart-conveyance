@@ -22,6 +22,7 @@ interface Seller {
 export default function SellerPage() {
     const params = useParams();
     const caseId = Array.isArray(params?.id) ? params.id[0] : (params?.id as string | undefined);
+    const [orgId, setOrgId] = useState<number | null>(null);
 
     const [sellers, setSellers] = useState<Seller[]>([]);
     const [sellerToEdit, setSellerToEdit] = useState<Seller | null>(null);
@@ -39,6 +40,7 @@ export default function SellerPage() {
         try {
             const response: any = await api(`/cases/${caseId}`, {method: "GET"});
             const data = response?.results?.data;
+            setOrgId(data?.orgId);
 
             const sellerParties = Array.isArray(data?.parties)
                 ? data.parties.filter((p: any) => p.role === "SELLER")
@@ -108,6 +110,7 @@ export default function SellerPage() {
                                 {/* ✅ Pass sellerToEdit and callback to form */}
                                 <CaseSellerForm
                                     caseId={caseId}
+                                    orgId={orgId}
                                     sellerToEdit={sellerToEdit}
                                     onSuccess={handleFormSuccess}
                                 />

@@ -22,6 +22,7 @@ interface Buyer {
 export default function BuyerPage() {
     const params = useParams();
     const caseId = params?.id as string | undefined;
+    const [orgId, setOrgId] = useState<number | null>(null);
 
     const [buyers, setBuyers] = useState<Buyer[]>([]);
     const [buyerToEdit, setBuyerToEdit] = useState<Buyer | null>(null);
@@ -39,6 +40,7 @@ export default function BuyerPage() {
             const response = await api(`/cases/${caseId}`, {method: "GET"});
 
             const data = response?.results?.data;
+            setOrgId(data?.orgId);
 
             const buyerParties = Array.isArray(data?.parties)
                 ? data.parties.filter((p: any) => p.role === "BUYER")
@@ -114,6 +116,7 @@ export default function BuyerPage() {
                                 {/* Form */}
                                 <CaseBuyerForm
                                     caseId={caseId}
+                                    orgId={orgId}
                                     buyerToEdit={buyerToEdit}
                                     onSuccess={handleFormSuccess}
                                 />
