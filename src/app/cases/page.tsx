@@ -58,7 +58,6 @@ export default function CasesPage() {
     const [pageNumber, setPageNumber] = useState(1);
     const [pageSize, sePageSize] = useState(10);
     const [totalPages, setTotalPages] = useState(1);
-    const [totalRecords, setTotalRecords] = useState(0);
     const [statusFilter, setStatusFilter] = useState<string>("");
     const [loading, setLoading] = useState(false);
     const [open, setOpen] = useState(false);
@@ -80,14 +79,12 @@ export default function CasesPage() {
 
     const listCases = async ({
                                  pageNumber = 1,
-                                 pageSize = 10,
-                                 statusFilter = "",
-                                 mortgageStatus = "NA",
+                                 pageSize = 10
                              }) => {
         setLoading(true);
 
         try {
-            let query = `pageNumber=${pageNumber}&pageSize=${pageSize}&mortgageStatus=${mortgageStatus}`;
+            let query = `pageNumber=${pageNumber}&pageSize=${pageSize}`;
 
             if (statusFilter) {
                 query += `&statusFilter=${encodeURIComponent(statusFilter)}`;
@@ -115,8 +112,8 @@ export default function CasesPage() {
 
 
     useEffect(() => {
-        listCases({pageNumber, pageSize, statusFilter});
-    }, [pageNumber, pageSize, statusFilter]);
+        listCases({pageNumber, pageSize});
+    }, [pageNumber, pageSize]);
 
 
     const fetchExistingMortgage = async (singlecase: SingleCase) => {
@@ -339,7 +336,7 @@ export default function CasesPage() {
                                                     key={singleCase.id}
                                                     className="border-b border-subtle-light dark:border-subtle-dark hover:bg-background-light dark:hover:bg-background-dark/50 transition-colors"
                                                 >
-                                                    <td className="px-4 py-4 font-medium">{singleCase.id.split("-").pop()}</td>
+                                                    <td className="px-4 py-4 font-medium">{singleCase.id.split("-")[0]}</td>
                                                     <td className="px-4 py-4 text-muted-light dark:text-muted-dark">
                                                         {singleCase?.property?.community || "-"}
                                                     </td>

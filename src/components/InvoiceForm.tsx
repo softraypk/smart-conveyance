@@ -224,7 +224,7 @@ export default function InvoiceForm({invoiceId, setIsLoading}: InvoicePageProps)
                             <option value="">Select a case</option>
                             {cases.map((c: any) => (
                                 <option key={c.id} value={c.id}>
-                                    {`${c.id} - ${c.property?.emirate} - ${c.property?.community}`}
+                                    {`${c.id.split("-")[0]} - ${c.property?.emirate} - ${c.property?.community}`}
                                 </option>
                             ))}
                         </select>

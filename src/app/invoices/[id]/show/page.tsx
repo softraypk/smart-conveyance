@@ -75,7 +75,7 @@ export default function InvoiceShowPage() {
                             </h2>
 
                             <p className="text-gray-700 dark:text-gray-300">
-                                <strong>Case ID:</strong> {invoice.caseId}
+                                <strong>Case ID:</strong> {invoice.caseId.split("-")[0]}
                             </p>
                             <p className="text-gray-700 dark:text-gray-300">
                                 <strong>Location:</strong> {invoice.location}
