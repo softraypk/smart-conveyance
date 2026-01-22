@@ -34,12 +34,8 @@ function InvoicesPage() {
             // Check for response success
             if (response?.ok || response?.status === 200) {
                 const invoicesData = response?.results?.data;
-
                 setInvoices(response?.results || []); // fallback to empty array
-
-                setTotalPages(invoicesData?.meta?.totalPages || 1);
-                setPageNumber(invoicesData?.meta?.pageNumber || 1);
-                setPageSize(invoicesData?.meta?.pageSize || pageSize);
+                setTotalPages(invoicesData?.total || 10);
             } else {
                 toast.error(response?.results?.message || "Failed to load invoices");
             }
@@ -94,7 +90,9 @@ function InvoicesPage() {
                             <table className="w-full text-left">
                                 <thead>
                                 <tr className="bg-background-light dark:bg-background-dark">
-                                    <th className="px-6 py-4 text-sm font-semibold text-on-surface-light dark:text-on-surface-dark tracking-wider">CASE ID</th>
+                                    <th className="px-6 py-4 text-sm font-semibold text-on-surface-light dark:text-on-surface-dark tracking-wider">CASE
+                                        ID
+                                    </th>
                                     <th className="px-6 py-4 text-sm font-semibold text-on-surface-light dark:text-on-surface-dark tracking-wider">Invoice</th>
                                     <th className="px-6 py-4 text-sm font-semibold text-on-surface-light dark:text-on-surface-dark tracking-wider text-right">Amount</th>
                                     <th className="px-6 py-4 text-sm font-semibold text-on-surface-light dark:text-on-surface-dark tracking-wider">Date</th>
@@ -141,7 +139,7 @@ function InvoicesPage() {
                             </table>
                             <Pagination
                                 pageNumber={pageNumber}
-                                totalPages={totalPages}
+                                totalPages={pageSize}
                                 onPageChange={setPageNumber}
                             />
                         </div>

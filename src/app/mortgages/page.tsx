@@ -6,6 +6,7 @@ import {ChangeEvent, FormEvent, useEffect, useState} from "react";
 import {api} from "@/lib/api";
 import toast from "react-hot-toast";
 import PageLoader from "@/components/PageLoader";
+import Pagination from "@/components/Pagination";
 
 interface User {
     name: string;
@@ -21,6 +22,9 @@ interface Bank {
 export default function MortgagesPage() {
     const router = useRouter();
     const [mortgages, setMortgages] = useState<any[]>([]);
+    const [pageNumber, setPageNumber] = useState(1);
+    const [pageSize, sePageSize] = useState(10);
+    const [totalPages, setTotalPages] = useState(1);
     const [loading, setLoading] = useState(false);
     const [isEditable, setIsEditable] = useState(false);
     const [documents, setDocuments] = useState([]);
@@ -47,31 +51,45 @@ export default function MortgagesPage() {
         }
     }, []);
 
-    useEffect(() => {
+    const fetchMortgages = async ({
+                                      pageNumber = 1,
+                                      pageSize = 10,
+                                  }) => {
         setLoading(true);
 
-        const fetchMortgages = async () => {
-            try {
-                const response = await api(
-                    "/cases?mortgageStatus=APPLICATION_SUBMITTED",
-                    {method: "GET"}
-                );
+        try {
+            const mortgageStatus = "APPLICATION_SUBMITTED";
 
-                if (response.ok) {
-                    setMortgages(response.results?.data?.cases);
-                } else {
-                    toast.error("Error fetching mortgage");
-                }
-            } catch (e) {
-                toast.error("Error: " + e);
-            } finally {
-                setLoading(false);
+            const query =
+                `mortgageStatus=${encodeURIComponent(mortgageStatus)}` +
+                `&pageNumber=${encodeURIComponent(pageNumber)}` +
+                `&pageSize=${encodeURIComponent(pageSize)}`;
+
+            const response = await api(`/cases?${query}`, {
+                method: "GET",
+            });
+
+            // Support both fetch-style and axios-style responses
+            if (response?.ok || response?.status === 200) {
+                const data = response?.results?.data;
+
+                setMortgages(Array.isArray(data?.cases) ? data.cases : []);
+                setTotalPages(data?.meta?.totalPages || 1);
+            } else {
+                toast.error(response?.results?.message || "Error fetching mortgages");
             }
-        };
+        } catch (error) {
+            console.error("Fetch mortgages failed:", error);
+            toast.error("Network error while fetching mortgages");
+        } finally {
+            setLoading(false);
+        }
+    };
 
-        void fetchMortgages(); // ✅ explicitly ignored promise
-    }, []);
 
+    useEffect(() => {
+        fetchMortgages({pageNumber, pageSize});
+    }, [pageNumber, pageSize]);
 
     const fetchValuation = async (caseId: string) => {
         setLoading(true);
@@ -251,6 +269,11 @@ export default function MortgagesPage() {
                     </div>
                     <div
                         className="overflow-x-auto rounded-lg border border-primary/20 bg-white dark:bg-background-dark/50">
+                        <Pagination
+                            pageNumber={pageNumber}
+                            totalPages={totalPages}
+                            onPageChange={setPageNumber}
+                        />
                         <table className="min-w-full divide-y divide-primary/20">
                             <thead className="bg-background-light dark:bg-background-dark/80">
                             <tr>
@@ -275,7 +298,7 @@ export default function MortgagesPage() {
                                 return (
                                     <tr key={m.id}>
                                         <td className="whitespace-nowrap px-6 py-4 text-sm font-medium text-black dark:text-white">
-                                            {m.id}
+                                            {m.id.split("-")[0]}
                                         </td>
 
                                         <td className="whitespace-nowrap px-6 py-4 text-sm text-black/80 dark:text-white/80">
@@ -300,30 +323,33 @@ export default function MortgagesPage() {
                                         <td className="whitespace-nowrap px-6 py-4 text-sm font-medium">
                                             <button
                                                 onClick={() => void handleModelOpener(m.id)}
-                                                className="text-primary hover:underline">
-                                                Valuation
+                                                className="text-primary hover:underline m-2">
+                                                <span className="material-symbols-outlined">analytics</span>
                                             </button>
-
-                                            <span className="text-black/30 dark:text-white/30 m-3">|</span>
-
                                             <button
                                                 onClick={() => handleOpenModel(m.id, m.documents)}
-                                                className="text-primary hover:underline items-center gap-1">
-                                                <span className="material-symbols-outlined">file_upload</span>
-                                                Documents
+                                                className="text-primary hover:underline items-center gap-1 m-2">
+                                                <span className="material-symbols-outlined">cloud_upload</span>
                                             </button>
-                                            <span className="text-black/30 dark:text-white/30 m-3">|</span>
-                                            <a className="text-primary hover:underline"
-                                               href={`/mortgages/${m.id}/show`}>View</a>
-                                            <span className="text-black/30 dark:text-white/30 m-3">|</span>
-                                            <a className="text-primary hover:underline"
-                                               href={`/mortgages/${m.id}/edit`}>Update</a>
+                                            <a className="text-primary hover:underline m-2"
+                                               href={`/mortgages/${m.id}/show`}>
+                                                <span className="material-symbols-outlined">visibility</span>
+                                            </a>
+                                            <a className="text-primary hover:underline m-2"
+                                               href={`/mortgages/${m.id}/edit`}>
+                                                <span className="material-symbols-outlined">edit</span>
+                                            </a>
                                         </td>
                                     </tr>
                                 );
                             })}
                             </tbody>
                         </table>
+                        <Pagination
+                            pageNumber={pageNumber}
+                            totalPages={totalPages}
+                            onPageChange={setPageNumber}
+                        />
                     </div>
                 </div>
                 {/* MODAL BACKDROP */}
