@@ -112,7 +112,7 @@ export default function ShowCasePage() {
                             <div className="py-3">
                                 <p className="text-sm font-medium text-text-muted-light dark:text-text-muted-dark">Case
                                     ID</p>
-                                <p className="text-base font-semibold text-text-light dark:text-text-dark mt-1">#{selectCase.id}</p>
+                                <p className="text-base font-semibold text-text-light dark:text-text-dark mt-1">#{selectCase.id.split("-")[0]}</p>
                             </div>
                             <div className="py-3">
                                 <p className="text-sm font-medium text-text-muted-light dark:text-text-muted-dark">Property</p>

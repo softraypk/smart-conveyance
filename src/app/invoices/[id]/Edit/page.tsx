@@ -10,7 +10,7 @@ interface Props {
     params: Promise<{ id: string | string[] }>;
 }
 
-export default function EditInvoicePage({params}: Props) {
+export default function InvoiceEditPage({params}: Props) {
     const [isLoading, setIsLoading] = useState(false);
     const unwrappedParams = use(params); // ✅ unwrap the promise
     const rawId = unwrappedParams.id;
