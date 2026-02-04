@@ -57,7 +57,7 @@ export default function CasesPage() {
     const [cases, setCases] = useState<any[]>([]);
     const [pageNumber, setPageNumber] = useState(1);
     const [pageSize, sePageSize] = useState(10);
-    const [totalPages, setTotalPages] = useState(1);
+    const [totalRecords, setTotalRecords] = useState(1);
     const [statusFilter, setStatusFilter] = useState<string>("");
     const [loading, setLoading] = useState(false);
     const [open, setOpen] = useState(false);
@@ -97,9 +97,7 @@ export default function CasesPage() {
 
             if (response?.ok) {
                 setCases(response?.results?.data?.cases || []);
-                setTotalPages(response?.results?.data?.meta?.totalPages || 1);
-                setPageNumber(response?.results?.data?.meta?.pageNumber || 1);
-                sePageSize(response?.results?.data?.meta?.pageSize || 1);
+                setTotalRecords(response?.results?.data?.meta?.total || 1);
             } else {
                 toast.error(response?.results?.message || "Failed to load cases");
             }
@@ -294,8 +292,10 @@ export default function CasesPage() {
                             <div className="overflow-x-auto">
                                 <Pagination
                                     pageNumber={pageNumber}
-                                    totalPages={totalPages}
-                                    onPageChange={setPageNumber}
+                                    pageSize={pageSize}
+                                    totalRecords={totalRecords}
+                                    totalPages={Math.ceil(totalRecords / pageSize)}
+                                    onPageChange={(page) => setPageNumber(page)}
                                 />
                                 <table className="w-full text-sm">
                                     <thead>
@@ -403,8 +403,10 @@ export default function CasesPage() {
                                 </table>
                                 <Pagination
                                     pageNumber={pageNumber}
-                                    totalPages={totalPages}
-                                    onPageChange={setPageNumber}
+                                    pageSize={pageSize}
+                                    totalRecords={totalRecords}
+                                    totalPages={Math.ceil(totalRecords / pageSize)}
+                                    onPageChange={(page) => setPageNumber(page)}
                                 />
                             </div>
                         </div>
@@ -1309,6 +1311,13 @@ export default function CasesPage() {
                                             )))}
                                         </tbody>
                                     </table>
+                                    <Pagination
+                                        pageNumber={pageNumber}
+                                        pageSize={pageSize}
+                                        totalRecords={totalRecords}
+                                        totalPages={Math.ceil(totalRecords / pageSize)}
+                                        onPageChange={(page) => setPageNumber(page)}
+                                    />
                                 </div>
                             </div>
                         </div>

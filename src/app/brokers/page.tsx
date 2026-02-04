@@ -5,6 +5,7 @@ import {useEffect, useState} from "react";
 import {useRouter} from "next/navigation";
 import {api} from "@/lib/api";
 import PageLoader from "@/components/PageLoader";
+import toast from "react-hot-toast";
 
 interface User {
     name: string;
@@ -70,6 +71,26 @@ export default function BrokersPage() {
     }, [user]);
 
     const route = useRouter();
+
+    const handlerResendInvitation = async (broker: any) => {
+        if (!broker) return
+        setLoading(true);
+        try {
+            const response = await api(`/orgs/${broker.branch?.orgId}/brokers/${broker.id}/resend`, {
+                method: "POST"
+            })
+
+            if (response.ok) {
+                toast.success("Successfully resend broker");
+            } else {
+                toast.error("Failed to resend broker");
+            }
+        } catch (err) {
+            toast.error("Error:" + err);
+        } finally {
+            setLoading(false);
+        }
+    }
 
     if (loading) {
         return (
@@ -196,6 +217,12 @@ export default function BrokersPage() {
                                             PM
                                         </td>
                                         <td className="px-4 py-4">
+                                            <button
+                                                onClick={() => handlerResendInvitation(broker)}
+                                                className="font-semibold text-primary hover:underline mr-3">
+                                                <span
+                                                    className="material-symbols-outlined text-base">forward_to_inbox</span>
+                                            </button>
                                             <button
                                                 onClick={() => route.push(`/brokers/${broker.id}/edit`)}
                                                 className="font-semibold text-primary hover:underline mr-3">

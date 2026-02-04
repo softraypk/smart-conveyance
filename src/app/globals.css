@@ -155,11 +155,11 @@ html, body {
     border-radius: 50%;
 }
 
-input:checked+.slider {
+input:checked + .slider {
     background-color: #00A699;
 }
 
-input:checked+.slider:before {
+input:checked + .slider:before {
     transform: translateX(20px);
 }
 
@@ -171,9 +171,11 @@ input:checked+.slider:before {
 textarea::-webkit-scrollbar {
     width: 8px;
 }
+
 textarea::-webkit-scrollbar-track {
     background: transparent;
 }
+
 textarea::-webkit-scrollbar-thumb {
     background-color: #cbd5e1;
     border-radius: 20px;

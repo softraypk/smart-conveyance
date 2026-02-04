@@ -34,7 +34,7 @@ export default function OrganizationsPage() {
         const fetchOrganizations = async () => {
             setLoading(true);
             try {
-                const response = await api("/orgs", { method: "GET" }); // ✅ Your endpoint
+                const response = await api("/orgs", {method: "GET"}); // ✅ Your endpoint
 
                 console.log(response.results);
 
@@ -82,7 +82,7 @@ export default function OrganizationsPage() {
 
             if (response.ok) {
                 setShowModal(false);
-                setOrganizations(response.results.data.orgs || []);
+                toast.success("Success:" + response.results?.message);
             } else {
                 setError(response.results.message);
                 console.log("Error fetching organizations:", response);

@@ -48,8 +48,9 @@ export default function ShowCasePage() {
 
                 if (response.ok) {
                     const fetchCase = response.results?.data || [];
+                    const sortedChecklistItems = (fetchCase.checklistItems || []).sort((a :any, b :any) => a.code - b.code); // descending
                     setSelectCase(fetchCase);
-                    setChecklistItems(fetchCase.checklistItems)
+                    setChecklistItems(sortedChecklistItems)
                     setDocuments(fetchCase.documents);
                 } else {
                     toast.error("Error: " + response.results?.message);

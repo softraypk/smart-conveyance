@@ -12,7 +12,7 @@ function InvoicesPage() {
     const [invoices, setInvoices] = useState([]);
     const [pageNumber, setPageNumber] = useState(1);
     const [pageSize, setPageSize] = useState(10);
-    const [totalPages, setTotalPages] = useState(1);
+    const [totalRecords, setTotalRecords] = useState(1);
     const [caseId, setCaseId] = useState<string | null | undefined>(null);
     const [isLoading, setIsLoading] = useState(false);
     const router = useRouter();
@@ -33,9 +33,8 @@ function InvoicesPage() {
 
             // Check for response success
             if (response?.ok || response?.status === 200) {
-                const invoicesData = response?.results?.data;
-                setInvoices(response?.results || []); // fallback to empty array
-                setTotalPages(invoicesData?.total || 10);
+                setInvoices(response?.results?.invoices || []); // fallback to empty array
+                setTotalRecords(response?.results?.total || 20);
             } else {
                 toast.error(response?.results?.message || "Failed to load invoices");
             }
@@ -82,11 +81,6 @@ function InvoicesPage() {
                             </h3>
                         </div>
                         <div className="overflow-x-auto">
-                            <Pagination
-                                pageNumber={pageNumber}
-                                totalPages={totalPages}
-                                onPageChange={setPageNumber}
-                            />
                             <table className="w-full text-left">
                                 <thead>
                                 <tr className="bg-background-light dark:bg-background-dark">
@@ -139,8 +133,10 @@ function InvoicesPage() {
                             </table>
                             <Pagination
                                 pageNumber={pageNumber}
-                                totalPages={pageSize}
-                                onPageChange={setPageNumber}
+                                pageSize={10}
+                                totalRecords={totalRecords}
+                                totalPages={Math.ceil(totalRecords / 10)}
+                                onPageChange={(page) => setPageNumber(page)}
                             />
                         </div>
                         <div className="p-6 border-t border-border-light dark:border-border-dark flex justify-end">

@@ -24,7 +24,7 @@ export default function MortgagesPage() {
     const [mortgages, setMortgages] = useState<any[]>([]);
     const [pageNumber, setPageNumber] = useState(1);
     const [pageSize, sePageSize] = useState(10);
-    const [totalPages, setTotalPages] = useState(1);
+    const [totalRecords, setTotalRecords] = useState(1);
     const [loading, setLoading] = useState(false);
     const [isEditable, setIsEditable] = useState(false);
     const [documents, setDocuments] = useState([]);
@@ -74,7 +74,7 @@ export default function MortgagesPage() {
                 const data = response?.results?.data;
 
                 setMortgages(Array.isArray(data?.cases) ? data.cases : []);
-                setTotalPages(data?.meta?.totalPages || 1);
+                setTotalRecords(data?.meta?.total || 1);
             } else {
                 toast.error(response?.results?.message || "Error fetching mortgages");
             }
@@ -269,11 +269,6 @@ export default function MortgagesPage() {
                     </div>
                     <div
                         className="overflow-x-auto rounded-lg border border-primary/20 bg-white dark:bg-background-dark/50">
-                        <Pagination
-                            pageNumber={pageNumber}
-                            totalPages={totalPages}
-                            onPageChange={setPageNumber}
-                        />
                         <table className="min-w-full divide-y divide-primary/20">
                             <thead className="bg-background-light dark:bg-background-dark/80">
                             <tr>
@@ -347,8 +342,10 @@ export default function MortgagesPage() {
                         </table>
                         <Pagination
                             pageNumber={pageNumber}
-                            totalPages={totalPages}
-                            onPageChange={setPageNumber}
+                            pageSize={10}
+                            totalRecords={totalRecords}
+                            totalPages={Math.ceil(totalRecords / 10)}
+                            onPageChange={(page) => setPageNumber(page)}
                         />
                     </div>
                 </div>

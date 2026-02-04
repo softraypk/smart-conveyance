@@ -5,6 +5,7 @@ import {useParams, useRouter} from "next/navigation";
 import {useEffect, useState} from "react";
 import {api} from "@/lib/api";
 import toast from "react-hot-toast";
+import PageLoader from "@/components/PageLoader";
 
 interface User {
     name: string;
@@ -81,13 +82,30 @@ export default function ShowBranchPage() {
         listBranch();
     }, [id, user]);
 
+    const handlerResendInvitation = async (broker: any) => {
+        if (!broker) return
+        setLoading(true);
+        try {
+            const response = await api(`/orgs/${branch?.orgId}/brokers/${broker.id}/resend`, {
+                method: "POST"
+            })
+
+            if (response.ok) {
+                toast.success("Successfully resend broker");
+            } else {
+                toast.error("Failed to resend broker");
+            }
+        } catch (err) {
+            toast.error("Error:" + err);
+        } finally {
+            setLoading(false);
+        }
+    }
+
     if (loading) {
         return (
-            <div className="flex flex-col min-h-screen bg-background-light dark:bg-background-dark">
-                <Sidebar/>
-                <main className="flex-1 overflow-auto p-6 md:p-8">
-                    <div className="max-w-7xl mx-auto">Loading branch...</div>
-                </main>
+            <div className="flex min-h-screen items-center justify-center text-gray-500">
+                <PageLoader/>
             </div>
         );
     }
@@ -209,12 +227,12 @@ export default function ShowBranchPage() {
                                                 {broker.phone ?? "—"}
                                             </td>
                                             <td className="px-4 py-4">
-                                                <a
-                                                    href="#"
-                                                    className="font-semibold text-primary hover:underline"
-                                                >
-                                                    View
-                                                </a>
+                                                <button
+                                                    onClick={() => handlerResendInvitation(broker)}
+                                                    className="font-semibold text-primary hover:underline mr-3">
+                                                <span
+                                                    className="material-symbols-outlined text-base">forward_to_inbox</span>
+                                                </button>
                                             </td>
                                         </tr>
                                     ))

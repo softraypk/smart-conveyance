@@ -8,6 +8,7 @@ const navItems = [
     { name: "Cases", href: "/cases", icon: "folder" },
     { name: "Organization", href: "/organizations", icon: "business_center" },
     { name: "Documents", href: "/documents", icon: "description" },
+    { name: "Email Templates", href: "/templates", icon: "email" },
     { name: "Users", href: "/users", icon: "contacts" },
     { name: "Reports", href: "/reports", icon: "bar_chart" },
     { name: "Trustee Office", href: "/trustee", icon: "account_balance" },

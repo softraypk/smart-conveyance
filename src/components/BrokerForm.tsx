@@ -39,6 +39,7 @@ export default function BrokerForm({initialValues, onSubmit, loading}: BrokerFor
 
     // ✅ Load user safely from localStorage
     useEffect(() => {
+        console.log("BrokerForm", initialValues);
         try {
             const storedUser = localStorage.getItem("user");
             if (storedUser) setUser(JSON.parse(storedUser));

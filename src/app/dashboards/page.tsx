@@ -6,7 +6,6 @@ import SCAdmin from "@/components/ScAdmin";
 import MorgAdmin from "@/components/MorgAdmin";
 import TrustAdmin from "@/components/TrustAdmin";
 import PageLoader from "@/components/PageLoader";
-import Sidebar from "@/components/Sidebar";
 import toast from "react-hot-toast";
 import {api} from "@/lib/api";
 
@@ -20,6 +19,7 @@ export default function DashboardsPage() {
     const [user, setUser] = useState<User | null>(null);
     const [loading, setLoading] = useState<boolean>(false);
     const [exceptions, setExceptions] = useState<any[]>([]);
+    const [stats, setStats] = useState<any | null>(null);
     const [bookings, setBookings] = useState<any[]>([]);
 
     useEffect(() => {
@@ -59,6 +59,16 @@ export default function DashboardsPage() {
         listBookings();
     }, []);
 
+    // Load Dashboard Data
+    useEffect(() => {
+        setLoading(true);
+
+        const response = api('/dashboard', {method: "GET"})
+            .then(res => res.results)
+            .then(setStats)
+            .finally(() => setLoading(false));
+    }, []);
+
     useEffect(() => {
         if (user?.role !== "ORG_ADMIN") return;
 
@@ -93,7 +103,7 @@ export default function DashboardsPage() {
 
     switch (user?.role) {
         case "ORG_ADMIN":
-            return <OrgAdmin exceptions={exceptions}/>;
+            return <OrgAdmin exceptions={exceptions} stats={stats} setLoading={setLoading}/>;
         case "MORTGAGE_BROKER":
         case "BROKER":
             return <MorgAdmin setLoading={setLoading}/>;
