@@ -12,6 +12,7 @@ import {TrustHeader} from "@/components/TrustHeader";
 import ExceptionModal from "@/components/ExceptionModel";
 import CaseUpdateStatusModel from "@/components/CaseUpdateStatusModel";
 import Pagination from "@/components/Pagination";
+import ProfileBuyerSellerModel from "@/components/ProfileBuyerSellerModel";
 
 interface User {
     name: string;
@@ -64,6 +65,8 @@ export default function CasesPage() {
     const [file, setFile] = useState<any>(null);
     const [openException, setOpenException] = useState<boolean>(false);
     const [openUpdateStatus, setOpenUpdateStatus] = useState<boolean>(false);
+    const [openUserProfile, setOpenUserProfile] = useState<boolean>(false);
+    const [userId, setUserId] = useState<string | null>(null);
 
     useEffect(() => {
         const storedUser = localStorage.getItem("user");
@@ -198,6 +201,11 @@ export default function CasesPage() {
             toast.error("Error: " + err);
         }
     };
+
+    const handleUserProfile = (userid: string) => {
+        setOpenUserProfile(true)
+        setUserId(userid);
+    }
 
     const handleException = (caseId: string) => {
         setOpenException(true);
@@ -343,7 +351,27 @@ export default function CasesPage() {
                                                     </td>
 
                                                     <td className="px-4 py-4 text-muted-light dark:text-muted-dark">
-                                                        {buyer?.name || "-"}/{seller?.name || "-"}
+                                                        {buyer?.consent === "ACCEPTED" ? (
+                                                            <button
+                                                                type="button"
+                                                                onClick={() => handleUserProfile(buyer.user?.id)}
+                                                            >
+                                                                {buyer?.name || "-"}
+                                                            </button>
+                                                        ) : (
+                                                            "Non-consent"
+                                                            )}
+                                                         /
+                                                        {seller?.consent === "ACCEPTED" ? (
+                                                            <button
+                                                                type="button"
+                                                                onClick={() => handleUserProfile(seller.user?.id)}
+                                                            >
+                                                                {seller?.name || "-"}
+                                                            </button>
+                                                        ): (
+                                                            "Non-consent"
+                                                            )}
                                                     </td>
 
                                                     <td className="px-4 py-4">
@@ -414,7 +442,10 @@ export default function CasesPage() {
                     {/* Modal */}
                     <ExceptionModal caseId={caseId} open={openException} onClose={() => setOpenException(false)}/>
                     <CaseUpdateStatusModel caseId={caseId} open={openUpdateStatus}
-                                           onClose={() => setOpenUpdateStatus(false)}/>/
+                                           onClose={() => setOpenUpdateStatus(false)}/>
+                    <ProfileBuyerSellerModel userId={userId} open={openUserProfile}
+                                             onClose={() => setOpenUserProfile(false)}/>
+
                     {/* MODAL BACKDROP */}
                     {open && (
                         <div

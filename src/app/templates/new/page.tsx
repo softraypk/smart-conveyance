@@ -161,11 +161,24 @@ export default function NewTemplate() {
                                         <label
                                             className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Template
                                             Name</label>
-                                        <input
+                                        <select
                                             value={name}
                                             onChange={(e) => setName(e.target.value)}
-                                            className="w-full bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 rounded-lg focus:ring-primary focus:border-primary dark:text-white text-sm"
-                                            placeholder="e.g., Client Welcome Letter" type="text"/>
+                                            className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg focus:ring-primary focus:border-primary dark:text-white text-sm px-3 py-2"
+                                        >
+                                            <option value="" disabled>
+                                                Select document type
+                                            </option>
+                                            <option value="NOC">NOC</option>
+                                            <option value="BANK_CLEARENCE_LETTER">Bank Clearance Letter</option>
+                                            <option value="INCOME_PROOF">Income Proof</option>
+                                            <option value="BANK_STATEMENT">Bank Statement</option>
+                                            <option value="IDENTIFICATION">Identification</option>
+                                            <option value="VALUATION">Valuation</option>
+                                            <option value="FOL">FOL</option>
+                                            <option value="DEED">Deed</option>
+                                            <option value="OTHER">Other</option>
+                                        </select>
                                     </div>
                                     {/*<div className="space-y-1.5">*/}
                                     {/*    <label*/}

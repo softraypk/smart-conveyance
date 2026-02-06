@@ -12,6 +12,7 @@ const navItems = [
     {name: "Invoices", href: "/invoices"},
     {name: "Branches", href: "/branches"},
     {name: "Brokers", href: "/brokers"},
+    {name: "User (Buyer/Seller)", href: "/users"},
     {name: "Staff", href: "/staff"},
 ];
 
