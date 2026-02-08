@@ -6,11 +6,13 @@ import CaseSellerForm from "@/components/CaseSellerForm";
 import {useParams} from "next/navigation";
 import {useEffect, useState} from "react";
 import {api} from "@/lib/api";
+import toast from "react-hot-toast";
 
 interface Seller {
     id: string;
     name: string | null;
     phone: string | null;
+    party_id: string | null;
     email: string | null;
     user: {
         email: string;
@@ -23,6 +25,7 @@ export default function SellerPage() {
     const params = useParams();
     const caseId = Array.isArray(params?.id) ? params.id[0] : (params?.id as string | undefined);
     const [orgId, setOrgId] = useState<number | null>(null);
+    const [partyId, setPartyId] = useState<number | null>(null);
 
     const [sellers, setSellers] = useState<Seller[]>([]);
     const [sellerToEdit, setSellerToEdit] = useState<Seller | null>(null);
@@ -45,6 +48,11 @@ export default function SellerPage() {
             const sellerParties = Array.isArray(data?.parties)
                 ? data.parties.filter((p: any) => p.role === "SELLER")
                 : [];
+
+            // ✅ assign first seller party id
+            if (sellerParties.length > 0) {
+                setPartyId(sellerParties[0].id);
+            }
 
             /**
              * Flatten all members from all SELLER parties
@@ -74,6 +82,22 @@ export default function SellerPage() {
 
     const handleEdit = (seller: Seller) => {
         setSellerToEdit(seller);
+    };
+
+    const handleReInvite = async (seller: Seller) => {
+        setLoading(true);
+        try {
+            const response = await api(`/cases/${caseId}/parties/${partyId}/invite`, {method: "GET"});
+            if (response.ok) {
+                toast.success("Success: " + response.results?.data?.message)
+            } else {
+                toast.error("Error: " + response.results?.data?.message)
+            }
+        } catch (error) {
+            toast.error("Error: " + error)
+        } finally {
+            setLoading(false);
+        }
     };
 
     const handleFormSuccess = () => {
@@ -159,7 +183,15 @@ export default function SellerPage() {
                                                                 onClick={() => handleEdit(seller)}
                                                                 className="text-blue-600 hover:underline"
                                                             >
-                                                                Edit
+                                                                <span
+                                                                    className="material-symbols-outlined">edit</span>
+                                                            </button>
+                                                            <button
+                                                                onClick={() => handleReInvite(seller)}
+                                                                className="text-blue-600 hover:underline"
+                                                            >
+                                                                <span
+                                                                    className="material-symbols-outlined">forward_to_inbox</span>
                                                             </button>
                                                         </td>
                                                     </tr>

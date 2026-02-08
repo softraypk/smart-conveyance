@@ -6,10 +6,12 @@ import CaseBuyerForm from "@/components/CaseBuyerForm";
 import {useParams} from "next/navigation";
 import {useEffect, useState} from "react";
 import {api} from "@/lib/api";
+import toast from "react-hot-toast";
 
 interface Buyer {
     id: string;
     name: string | null;
+    party_id: string | null;
     phone: string | null;
     email: string | null;
     user: {
@@ -23,6 +25,7 @@ export default function BuyerPage() {
     const params = useParams();
     const caseId = params?.id as string | undefined;
     const [orgId, setOrgId] = useState<number | null>(null);
+    const [partyId, setPartyId] = useState<number | null>(null);
 
     console.log(caseId);
 
@@ -50,12 +53,18 @@ export default function BuyerPage() {
                 ? data.parties.filter((p: any) => p.role === "BUYER")
                 : [];
 
+            // ✅ assign first seller party id
+            if (buyerParties.length > 0) {
+                setPartyId(buyerParties[0].id);
+            }
+
             /**
              * Flatten all members from all BUYER parties
              */
             const formattedBuyers: Buyer[] = buyerParties.flatMap((party: any) =>
                 (party.members || []).map((member: any) => ({
                     id: member.id,
+                    party_id: party.id,
                     name: member.user?.name ?? party.name ?? null,
                     phone: member.phone ?? null,
                     email: member.user?.email ?? null,
@@ -66,6 +75,8 @@ export default function BuyerPage() {
                     },
                 }))
             );
+
+            console.log(formattedBuyers);
 
             setBuyers(formattedBuyers);
         } catch (err: any) {
@@ -78,6 +89,22 @@ export default function BuyerPage() {
 
     const handleEdit = (buyer: Buyer) => {
         setBuyerToEdit(buyer);
+    };
+
+    const handleReInvite = async (buyer: Buyer) => {
+        setLoading(true);
+        try {
+            const response = await api(`/cases/${caseId}/parties/${partyId}/invite`, {method: "GET"});
+            if (response.ok) {
+                toast.success("Success: " + response.results?.data?.message)
+            } else {
+                toast.error("Error: " + response.results?.data?.message)
+            }
+        } catch (error) {
+            toast.error("Error: " + error)
+        } finally {
+            setLoading(false);
+        }
     };
 
     const handleFormSuccess = () => {
@@ -144,7 +171,7 @@ export default function BuyerPage() {
                                             <tbody
                                                 className="bg-white dark:bg-slate-800 divide-y divide-gray-100 dark:divide-gray-700">
                                             {buyers.length > 0 ? (
-                                                buyers.map((buyer :any, index) => (
+                                                buyers.map((buyer: any, index) => (
                                                     <tr key={buyer.id}>
                                                         <td className="px-6 py-4 text-sm text-gray-700 dark:text-gray-200">{index + 1}</td>
                                                         <td className="px-6 py-4 text-sm text-gray-700 dark:text-gray-200">
@@ -161,7 +188,15 @@ export default function BuyerPage() {
                                                                 onClick={() => handleEdit(buyer)}
                                                                 className="text-blue-600 hover:underline"
                                                             >
-                                                                Edit
+                                                                <span
+                                                                    className="material-symbols-outlined">edit</span>
+                                                            </button>
+                                                            <button
+                                                                onClick={() => handleReInvite(buyer)}
+                                                                className="text-blue-600 hover:underline"
+                                                            >
+                                                                <span
+                                                                    className="material-symbols-outlined">forward_to_inbox</span>
                                                             </button>
                                                         </td>
                                                     </tr>

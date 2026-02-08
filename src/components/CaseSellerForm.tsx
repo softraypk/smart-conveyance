@@ -6,6 +6,7 @@ interface Seller {
     id: string;
     name: string | null;
     phone: string | null;
+    party_id: string | null;
     email: string | null;
     user: {
         email: string;
@@ -111,7 +112,7 @@ export default function CaseSellerForm({caseId, orgId, sellerToEdit, onSuccess}:
         try {
             const method = sellerToEdit ? "PATCH" : "POST";
             const url = sellerToEdit
-                ? `/cases/${caseId}/parties/${sellerToEdit.id}`
+                ? `/cases/${caseId}/parties/${sellerToEdit.party_id}`
                 : `/cases/${caseId}/parties`;
 
             const response = await api(url, {

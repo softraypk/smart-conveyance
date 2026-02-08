@@ -96,7 +96,7 @@ export default function CaseBuyerForm({caseId, orgId, buyerToEdit, onSuccess}: C
         try {
             const method = buyerToEdit ? "PATCH" : "POST";
             const url = buyerToEdit
-                ? `/cases/${caseId}/parties/${buyerToEdit.id}`
+                ? `/cases/${caseId}/parties/${buyerToEdit.party_id}`
                 : `/cases/${caseId}/parties`;
 
             const response = await api(url, {

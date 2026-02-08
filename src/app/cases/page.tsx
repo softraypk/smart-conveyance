@@ -51,6 +51,7 @@ interface Mortgage {
 export default function CasesPage() {
     const [showModal, setShowModal] = useState(false);
     const [caseId, setCaseId] = useState<string | null>(null);
+    const [partyId, setPartyId] = useState<number | null>(null);
     const [mortgageToEdit, setMortgageToEdit] = useState<Mortgage | null>(null);
     const [mortgages, setMortgages] = useState<any>(null);
     const router = useRouter();
@@ -123,6 +124,11 @@ export default function CasesPage() {
         try {
             const mortgageParties =
                 singlecase.parties?.filter((p: any) => p.role === "MORTGAGE_BROKER") || [];
+
+            // ✅ assign first seller party id
+            if (mortgageParties.length > 0) {
+                setPartyId(mortgageParties[0].id);
+            }
 
             const formattedMortgages: Mortgage[] = mortgageParties.flatMap((party: any) =>
                 (party.members || []).map((member: any) => ({
@@ -216,6 +222,22 @@ export default function CasesPage() {
         setOpenUpdateStatus(true);
         setCaseId(caseId);
     }
+
+    const handleReInvite = async (mortgage: Mortgage) => {
+        setLoading(true);
+        try {
+            const response = await api(`/cases/${caseId}/parties/${partyId}/invite`, {method: "GET"});
+            if (response.ok) {
+                toast.success("Success: " + response.results?.data?.message)
+            } else {
+                toast.error("Error: " + response.results?.data?.message)
+            }
+        } catch (error) {
+            toast.error("Error: " + error)
+        } finally {
+            setLoading(false);
+        }
+    };
 
 
     if (loading || !cases) {
@@ -360,8 +382,8 @@ export default function CasesPage() {
                                                             </button>
                                                         ) : (
                                                             "Non-consent"
-                                                            )}
-                                                         /
+                                                        )}
+                                                        /
                                                         {seller?.consent === "ACCEPTED" ? (
                                                             <button
                                                                 type="button"
@@ -369,9 +391,9 @@ export default function CasesPage() {
                                                             >
                                                                 {seller?.name || "-"}
                                                             </button>
-                                                        ): (
+                                                        ) : (
                                                             "Non-consent"
-                                                            )}
+                                                        )}
                                                     </td>
 
                                                     <td className="px-4 py-4">
@@ -648,7 +670,15 @@ export default function CasesPage() {
                                                                 onClick={() => handleEdit(mortgage)}
                                                                 className="text-blue-600 hover:underline"
                                                             >
-                                                                Edit
+                                                               <span
+                                                                   className="material-symbols-outlined">edit</span>
+                                                            </button>
+                                                            <button
+                                                                onClick={() => handleReInvite(mortgage)}
+                                                                className="text-blue-600 hover:underline"
+                                                            >
+                                                                <span
+                                                                    className="material-symbols-outlined">forward_to_inbox</span>
                                                             </button>
                                                         </td>
                                                     </tr>
