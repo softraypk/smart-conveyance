@@ -160,6 +160,9 @@ export default function MortgagesPage() {
             requestedBy,
             status
         }
+
+        console.log(payload);
+
         try {
             const response = await api(`/cases/${caseId}/mortgage/valuation`, {
                 method: isEditable ? "PATCH" : "POST",

@@ -21,6 +21,7 @@ export default function DashboardsPage() {
     const [exceptions, setExceptions] = useState<any[]>([]);
     const [stats, setStats] = useState<any | null>(null);
     const [bookings, setBookings] = useState<any[]>([]);
+    const [mortgageApplications, setMortgageApplications] = useState<any[]>([]);
 
     useEffect(() => {
         const storedUser = localStorage.getItem("user");
@@ -36,7 +37,7 @@ export default function DashboardsPage() {
 
     // Load bookings
     useEffect(() => {
-        if (user?.role === "TRUSTEE") return;
+        if (user?.role !== "TRUSTEE") return;
         const listBookings = async () => {
             try {
                 setLoading(true);
@@ -61,6 +62,7 @@ export default function DashboardsPage() {
 
     // Load Dashboard Data
     useEffect(() => {
+        if (user?.role !== "ORG_ADMIN") return;
         setLoading(true);
 
         const response = api('/dashboard', {method: "GET"})
@@ -93,6 +95,30 @@ export default function DashboardsPage() {
         listCaseException();
     }, []); // empty dependency to run only once on mount
 
+    useEffect(() => {
+        //if (user?.role !== "MORTGAGE_BROKER") return;
+
+        const listMortgageApplications = async () => {
+            try {
+                setLoading(true); // optional, only if you want parent loader
+
+                const response = await api("/cases?mortgageStatus=APPLICATION_SUBMITTED", {method: "GET"});
+
+                if (response?.ok) {
+                    setMortgageApplications(response.results?.data?.cases || []);
+                } else {
+                    toast.error("Error: " + (response?.results?.message || "Unknown error"));
+                }
+            } catch (e: any) {
+                toast.error("Error: " + (e?.message || e));
+            } finally {
+                setLoading(false); // hide parent loader
+            }
+        };
+
+        listMortgageApplications();
+    }, []); // empty dependency to run only once on mount
+
     if (loading) {
         return (
             <div className="flex items-center justify-center h-screen text-gray-500">
@@ -105,8 +131,9 @@ export default function DashboardsPage() {
         case "ORG_ADMIN":
             return <OrgAdmin exceptions={exceptions} stats={stats} setLoading={setLoading}/>;
         case "MORTGAGE_BROKER":
+
         case "BROKER":
-            return <MorgAdmin setLoading={setLoading}/>;
+            return <MorgAdmin mortgageApplications={mortgageApplications} setLoading={setLoading}/>;
         case "TRUSTEE":
             return <TrustAdmin bookings={bookings}/>;
         default:

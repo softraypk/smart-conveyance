@@ -14,7 +14,9 @@ interface Props {
 interface Case {
     id: string;
     property: {
-        titleDeedNo: string
+        emirate: string;
+        building: string,
+        community: string
     };
 }
 
@@ -155,7 +157,7 @@ export default function MortgageForm({id, loading, setLoading}: Props) {
                         <option value="">Select Case#</option>
                         {cases.map((c) => (
                             <option key={c.id} value={c.id}>
-                                {c.property?.titleDeedNo}
+                                {c.id.split("-")[0]}
                             </option>
                         ))}
                     </select>

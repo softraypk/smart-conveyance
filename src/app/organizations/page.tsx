@@ -84,8 +84,7 @@ export default function OrganizationsPage() {
                 setShowModal(false);
                 toast.success("Success:" + response.results?.message);
             } else {
-                setError(response.results.message);
-                console.log("Error fetching organizations:", response);
+                toast.error("Error: " + response.results.message);
             }
         } catch
             (error) {

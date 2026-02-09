@@ -828,10 +828,11 @@ export default function CasesPage() {
                                                         </>
                                                     )}
                                                     <button
-                                                        onClick={() => router.push(`/cases/${singleCase.id}`)}
+                                                        onClick={() => router.push(`/cases/${singleCase.id}/show`)}
                                                         className="font-semibold text-primary hover:underline"
                                                     >
-                                                        View
+                                                        <span
+                                                            className="material-symbols-outlined">visibility</span>
                                                     </button>
                                                 </td>
                                             </tr>

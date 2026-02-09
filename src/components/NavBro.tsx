@@ -9,7 +9,7 @@ const navItems = [
     { name: "Cases", href: "/cases" },
     { name: "Mortgage Applications", href: "/mortgages" },
     { name: "Invoices", href: "/invoices" },
-    { name: "Documents", href: "/documents" },
+    //{ name: "Documents", href: "/documents" },
     { name: "Reports", href: "/reports" },
 ];
 

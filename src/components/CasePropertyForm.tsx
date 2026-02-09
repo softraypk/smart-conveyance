@@ -82,15 +82,27 @@ export default function CasePropertyForm() {
         }
     };
 
+    const DEED_REGEX = /^(?!0+$)\d{5,10}$/;
+
+    function isValidDeedNumber(value: string) {
+        return DEED_REGEX.test(value.trim());
+    }
+
     // 🧠 Debounced search for properties by title deed
     useEffect(() => {
         const timeout = setTimeout(() => {
-            if (titleDeedNo.length >= 3) {
-                searchProperties(titleDeedNo);
-            } else {
-                setResults([]);
+            if (!titleDeedNo) {
+                return;
             }
+
+            if (!isValidDeedNumber(titleDeedNo)) {
+                toast.error("Invalid Title Deed Number");
+                return;
+            }
+
+            setError("");
         }, 400);
+
         return () => clearTimeout(timeout);
     }, [titleDeedNo]);
 
@@ -186,7 +198,7 @@ export default function CasePropertyForm() {
                             <input
                                 type="text"
                                 value={titleDeedNo}
-                                onChange={(e) => setTitleDeedNo(e.target.value)}
+                                onChange={(e) => setTitleDeedNo(e.target.value.replace(/\D/g, ""))}
                                 className="form-input w-full dark:bg-background-dark dark:border-gray-600 dark:text-white dark:placeholder-gray-400"
                                 placeholder="Enter Title Deed Number"
                             />
